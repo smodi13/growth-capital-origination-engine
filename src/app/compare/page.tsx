@@ -3,7 +3,7 @@ import { companies } from '@/data/companies';
 import { scoreOf } from '@/lib/scoring';
 import { formatDate } from '@/lib/derived';
 import { NOT_DISCLOSED } from '@/lib/types';
-import { DisclosureBanner, PageHeader, Section } from '@/components/primitives';
+import { DisclosureBanner, PageHeader, Section, PageShell} from '@/components/primitives';
 import { CompareTool, type CompareRecord } from '@/components/CompareTool';
 import { DISCLOSURE } from '@/lib/site';
 
@@ -41,7 +41,7 @@ const records: CompareRecord[] = companies.map((c) => ({
 
 export default function ComparePage() {
   return (
-    <div>
+    <PageShell>
       <PageHeader
         eyebrow="Private company comparison tool"
         title="Compare up to four companies"
@@ -72,8 +72,8 @@ export default function ComparePage() {
             },
           ].map((x) => (
             <div key={x.t} className="panel p-4">
-              <p className="text-sm font-semibold text-ink-100">{x.t}</p>
-              <p className="mt-2 text-xs leading-relaxed text-ink-400">{x.b}</p>
+              <p className="text-sm font-semibold text-slate-100">{x.t}</p>
+              <p className="mt-2 text-xs leading-relaxed text-slate-400">{x.b}</p>
             </div>
           ))}
         </div>
@@ -82,6 +82,6 @@ export default function ComparePage() {
       <div className="mt-12">
         <DisclosureBanner>{DISCLOSURE}</DisclosureBanner>
       </div>
-    </div>
+    </PageShell>
   );
 }

@@ -10,7 +10,7 @@ import { describe, expect, it } from 'vitest';
 import { readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import { companies, exclusions } from '@/data/companies';
+import { benchmarkCompanies, companies, emergingTargets, exclusions } from '@/data/companies';
 import {
   computeOriginationScore,
   debtFitExceedsEvidence,
@@ -46,8 +46,13 @@ function allClaims(c: (typeof companies)[number]): { field: string; claim: Claim
 
 describe('sourcing universe integrity', () => {
   it('1. every sourcing company is real and private, with an explicit verification claim', () => {
-    expect(companies.length).toBeGreaterThanOrEqual(18);
-    expect(companies.length).toBeLessThanOrEqual(22);
+    // The universe holds a benchmark set plus an emerging origination set.
+    // Both are held to this same verification standard.
+    expect(benchmarkCompanies.length).toBeGreaterThanOrEqual(18);
+    expect(benchmarkCompanies.length).toBeLessThanOrEqual(22);
+    expect(emergingTargets.length).toBeGreaterThanOrEqual(8);
+    expect(emergingTargets.length).toBeLessThanOrEqual(12);
+    expect(companies.length).toBe(benchmarkCompanies.length + emergingTargets.length);
 
     companies.forEach((c) => {
       const v = c.privateStatusVerification;

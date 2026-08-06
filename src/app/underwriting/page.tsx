@@ -18,7 +18,7 @@ import {
   recommendation,
   transactionAssumptions,
 } from '@/data/hypothetical';
-import { DisclosureBanner, PageHeader, Section, StatTile } from '@/components/primitives';
+import { DisclosureBanner, PageHeader, Section, StatTile, PageShell} from '@/components/primitives';
 import { DataTable, type Column } from '@/components/DataTable';
 import { DOWNLOADS } from '@/lib/site';
 import type { ForecastYear, DownsideYear } from '@/data/hypothetical';
@@ -79,7 +79,7 @@ export default function UnderwritingPage() {
   const y5 = forecast[forecast.length - 1];
 
   return (
-    <div>
+    <PageShell>
       <PageHeader
         eyebrow="Hypothetical SaaS underwriting case"
         title={HYPOTHETICAL_NAME}
@@ -100,8 +100,8 @@ export default function UnderwritingPage() {
       <Section title="Case assumptions" description="Every assumption below is an editable input in the Excel model rather than a hardcoded output.">
         <div className="grid gap-3 lg:grid-cols-2">
           <div className="panel p-4">
-            <h3 className="text-sm font-semibold text-ink-100">Operating assumptions</h3>
-            <dl className="mt-3 divide-y divide-ink-800/70">
+            <h3 className="text-sm font-semibold text-slate-100">Operating assumptions</h3>
+            <dl className="mt-3 divide-y divide-white/[0.06]">
               {[
                 ['Beginning ARR', `USD ${assumptions.beginningArr.toFixed(1)} million`],
                 ['Year one ARR growth', p(assumptions.growthYear1)],
@@ -117,28 +117,28 @@ export default function UnderwritingPage() {
                 ['Customer count at year zero', String(assumptions.customerCountYear0)],
               ].map(([k, v]) => (
                 <div key={k} className="flex justify-between gap-4 py-2">
-                  <dt className="text-xs text-ink-400">{k}</dt>
-                  <dd className="num text-right text-ink-100">{v}</dd>
+                  <dt className="text-xs text-slate-400">{k}</dt>
+                  <dd className="num text-right text-slate-100">{v}</dd>
                 </div>
               ))}
             </dl>
           </div>
 
           <div className="panel p-4">
-            <h3 className="text-sm font-semibold text-ink-100">Illustrative use of proceeds</h3>
+            <h3 className="text-sm font-semibold text-slate-100">Illustrative use of proceeds</h3>
             <ul className="mt-3 space-y-2">
               {hypotheticalProfile.useOfProceeds.map((u) => (
-                <li key={u} className="flex gap-2 text-xs leading-relaxed text-ink-300">
-                  <span aria-hidden="true" className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-accent-500" />
+                <li key={u} className="flex gap-2 text-xs leading-relaxed text-slate-300">
+                  <span aria-hidden="true" className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-cobalt-500" />
                   <span>{u}</span>
                 </li>
               ))}
             </ul>
 
-            <h3 className="mt-5 border-t border-ink-800 pt-4 text-sm font-semibold text-ink-100">
+            <h3 className="mt-5 border-t border-white/[0.07] pt-4 text-sm font-semibold text-slate-100">
               Transaction assumptions
             </h3>
-            <dl className="mt-3 divide-y divide-ink-800/70">
+            <dl className="mt-3 divide-y divide-white/[0.06]">
               {[
                 ['Capital raised', `USD ${transactionAssumptions.capitalRaised.toFixed(1)} million`],
                 ['Existing debt refinanced at close', `USD ${transactionAssumptions.refinanceExistingDebt.toFixed(1)} million`],
@@ -147,8 +147,8 @@ export default function UnderwritingPage() {
                 ['Minimum cash covenant', `USD ${transactionAssumptions.minimumCashCovenant.toFixed(1)} million`],
               ].map(([k, v]) => (
                 <div key={k} className="flex justify-between gap-4 py-2">
-                  <dt className="text-xs text-ink-400">{k}</dt>
-                  <dd className="num text-right text-ink-100">{v}</dd>
+                  <dt className="text-xs text-slate-400">{k}</dt>
+                  <dd className="num text-right text-slate-100">{v}</dd>
                 </div>
               ))}
             </dl>
@@ -199,7 +199,7 @@ export default function UnderwritingPage() {
         <div className="mt-4 grid gap-3 lg:grid-cols-3">
           <div className="panel p-4">
             <p className="label">Where the case is strong</p>
-            <p className="mt-2 text-xs leading-relaxed text-ink-300">
+            <p className="mt-2 text-xs leading-relaxed text-slate-300">
               Net revenue retention of {p(assumptions.netRevenueRetention)} against gross retention of{' '}
               {p(assumptions.grossRetention)} means the installed base grows without new logos, and
               the burn multiple improves every year from {forecast[0].burnMultiple?.toFixed(2)} to{' '}
@@ -208,7 +208,7 @@ export default function UnderwritingPage() {
           </div>
           <div className="panel p-4">
             <p className="label">Where the case is weak</p>
-            <p className="mt-2 text-xs leading-relaxed text-ink-300">
+            <p className="mt-2 text-xs leading-relaxed text-slate-300">
               Rule of 40 begins at {forecast[0].ruleOf40.toFixed(0)} and only reaches{' '}
               {y5.ruleOf40.toFixed(0)} by year five. Gross retention of {p(assumptions.grossRetention)}{' '}
               implies {p(1 - assumptions.grossRetention)} of the base is lost annually, which is the
@@ -217,7 +217,7 @@ export default function UnderwritingPage() {
           </div>
           <div className="panel p-4">
             <p className="label">Break even</p>
-            <p className="mt-2 text-xs leading-relaxed text-ink-300">
+            <p className="mt-2 text-xs leading-relaxed text-slate-300">
               At the year five cost structure, operating expenses run{' '}
               {p(breakEven.year5OpexPctOfRevenue)} of revenue against a {p(assumptions.grossMargin)}{' '}
               gross margin, giving a contribution margin of {p(breakEven.contributionMargin)}. EBITDA
@@ -243,12 +243,12 @@ export default function UnderwritingPage() {
           {downsideOutcomes.map((o) => (
             <div key={o.label} className="panel p-4">
               <div className="flex items-center justify-between gap-3">
-                <p className="text-sm font-semibold text-ink-50">{o.label}</p>
+                <p className="text-sm font-semibold text-ivory-50">{o.label}</p>
                 <span
                   className={`rounded border px-1.5 py-0.5 text-2xs font-medium ${
                     o.survivesFiveYears
-                      ? 'border-emerald-700/50 bg-emerald-950/40 text-emerald-300'
-                      : 'border-rose-800/50 bg-rose-950/40 text-rose-300'
+                      ? 'border-positive-500/40 bg-positive-700/25 text-positive-200'
+                      : 'border-risk-500/40 bg-risk-700/22 text-risk-200'
                   }`}
                 >
                   {o.survivesFiveYears ? 'Survives 5 years' : 'Runs out of cash'}
@@ -256,12 +256,12 @@ export default function UnderwritingPage() {
               </div>
               <dl className="mt-3 space-y-1.5">
                 <div className="flex justify-between gap-3">
-                  <dt className="text-xs text-ink-400">Ending cash</dt>
-                  <dd className="num text-ink-100">USD {o.endingCash.toFixed(1)}m</dd>
+                  <dt className="text-xs text-slate-400">Ending cash</dt>
+                  <dd className="num text-slate-100">USD {o.endingCash.toFixed(1)}m</dd>
                 </div>
                 <div className="flex justify-between gap-3">
-                  <dt className="text-xs text-ink-400">Minimum cash breach</dt>
-                  <dd className="num text-ink-100">
+                  <dt className="text-xs text-slate-400">Minimum cash breach</dt>
+                  <dd className="num text-slate-100">
                     {o.breachYear === null ? 'None' : `Year ${o.breachYear}`}
                   </dd>
                 </div>
@@ -270,7 +270,7 @@ export default function UnderwritingPage() {
           ))}
         </div>
 
-        <p className="mt-4 max-w-3xl text-xs leading-relaxed text-ink-400">
+        <p className="mt-4 max-w-3xl text-xs leading-relaxed text-slate-400">
           The downside case is what separates the three structures. Under all equity the company
           still ends year five with USD {downsideOutcomes[0].endingCash.toFixed(1)} million of cash.
           Under the all debt structure it runs out entirely, ending at USD{' '}
@@ -284,26 +284,26 @@ export default function UnderwritingPage() {
       <Section title="Preliminary recommendation">
         <div className="panel p-5">
           <p className="label">Recommended illustrative structure</p>
-          <h3 className="mt-1.5 text-lg font-semibold text-accent-300">{recommendation.structure}</h3>
-          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-ink-200">
+          <h3 className="mt-1.5 text-lg font-semibold text-cobalt-300">{recommendation.structure}</h3>
+          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-200">
             {recommendation.headline}
           </p>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {recommendation.reasons.map((r) => (
-              <div key={r.title} className="rounded-md border border-ink-800 bg-ink-950/50 p-3.5">
-                <p className="text-xs font-semibold text-ink-100">{r.title}</p>
-                <p className="mt-1.5 text-xs leading-relaxed text-ink-400">{r.detail}</p>
+              <div key={r.title} className="rounded-md border border-white/[0.07] bg-navy-950/50 p-3.5">
+                <p className="text-xs font-semibold text-slate-100">{r.title}</p>
+                <p className="mt-1.5 text-xs leading-relaxed text-slate-400">{r.detail}</p>
               </div>
             ))}
           </div>
 
-          <div className="mt-5 rounded-md border border-amber-800/50 bg-amber-950/20 p-3.5">
-            <p className="text-xs font-semibold text-amber-200">Where this conclusion could be wrong</p>
-            <p className="mt-1.5 text-xs leading-relaxed text-amber-200/80">{recommendation.caveat}</p>
+          <div className="mt-5 rounded-md border border-caution-500/40 bg-caution-700/15 p-3.5">
+            <p className="text-xs font-semibold text-caution-100">Where this conclusion could be wrong</p>
+            <p className="mt-1.5 text-xs leading-relaxed text-caution-100/85">{recommendation.caveat}</p>
           </div>
 
-          <div className="mt-5 grid gap-2 border-t border-ink-800 pt-4 sm:grid-cols-3">
+          <div className="mt-5 grid gap-2 border-t border-white/[0.07] pt-4 sm:grid-cols-3">
             {[
               { label: 'Growth equity', s: growthEquityCase },
               { label: 'Private credit', s: privateCreditCase },
@@ -311,7 +311,7 @@ export default function UnderwritingPage() {
             ].map(({ label, s }) => (
               <div key={label}>
                 <p className="label">{label}</p>
-                <p className="num mt-1 text-ink-200">
+                <p className="num mt-1 text-slate-200">
                   Dilution {p(s.founderDilution, 1)} · Ending cash USD {s.endingCash.toFixed(1)}m
                 </p>
               </div>
@@ -329,10 +329,10 @@ export default function UnderwritingPage() {
       <Section title="Downloads" description="The full model and the written memorandum.">
         <div className="grid gap-3 sm:grid-cols-2">
           {[DOWNLOADS.model, DOWNLOADS.memo].map((d) => (
-            <a key={d.href} href={d.href} className="panel block min-w-0 p-4 transition-colors hover:border-ink-700 hover:bg-ink-850">
-              <p className="text-sm font-semibold text-ink-50">{d.title}</p>
-              <p className="mt-1.5 text-xs leading-relaxed text-ink-400">{d.description}</p>
-              <p className="num mt-3 break-all text-accent-400">{d.label}</p>
+            <a key={d.href} href={d.href} className="panel block min-w-0 p-4 transition-colors hover:border-white/10 hover:bg-graphite-800">
+              <p className="text-sm font-semibold text-ivory-50">{d.title}</p>
+              <p className="mt-1.5 text-xs leading-relaxed text-slate-400">{d.description}</p>
+              <p className="num mt-3 break-all text-cobalt-400">{d.label}</p>
             </a>
           ))}
         </div>
@@ -341,6 +341,6 @@ export default function UnderwritingPage() {
       <div className="mt-12">
         <DisclosureBanner tone="warning">{HYPOTHETICAL_LONG_DISCLOSURE}</DisclosureBanner>
       </div>
-    </div>
+    </PageShell>
   );
 }

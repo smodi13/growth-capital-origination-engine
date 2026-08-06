@@ -105,6 +105,17 @@ export type SignalFreshness = 'Fresh' | 'Recent' | 'Established';
 
 export type DataConfidence = 'High' | 'Moderate' | 'Limited';
 
+/**
+ * Whether a company is in the universe as a market and underwriting reference
+ * point, or as a differentiated origination target.
+ *
+ * This is a sourcing classification, not a quality judgment. It is assigned by
+ * which research file a record lives in, and it deliberately has no effect on
+ * the origination score. An emerging target is not boosted, and a benchmark is
+ * not penalised.
+ */
+export type CompanyClassification = 'Benchmark growth company' | 'Emerging origination target';
+
 export type Sector =
   | 'Enterprise infrastructure software'
   | 'Data infrastructure'
@@ -247,4 +258,17 @@ export interface CompanyRecord {
 
   /** Explicit verification that the company is independently operating. */
   privateStatusVerification: Claim;
+
+  /**
+   * Sourcing classification. Assigned during aggregation from the research file
+   * a record lives in, so an individual record never sets it directly and it
+   * cannot be used to tilt a score.
+   */
+  classification: CompanyClassification;
 }
+
+/**
+ * A company record as authored in a research file, before the aggregation step
+ * stamps its sourcing classification.
+ */
+export type CompanyInput = Omit<CompanyRecord, 'classification'>;

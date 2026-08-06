@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { companies } from '@/data/companies';
+import { companies, emergingTargets } from '@/data/companies';
 import {
   capitalSolutionDistribution,
   channelDistribution,
@@ -9,230 +9,514 @@ import {
   topPriorities,
   totalSources,
 } from '@/lib/derived';
-import { DISCLOSURE, DOWNLOADS, SITE } from '@/lib/site';
-import { HYPOTHETICAL_DISCLOSURE, HYPOTHETICAL_NAME, recommendation } from '@/data/hypothetical';
+import { DISCLOSURE, DEVELOPMENT_DISCLOSURE, DOWNLOADS, SITE } from '@/lib/site';
 import {
-  DisclosureBanner,
-  DistributionBar,
-  ExternalLink,
-  Section,
-  StatTile,
-} from '@/components/primitives';
+  blendedCapitalCase,
+  growthEquityCase,
+  HYPOTHETICAL_DISCLOSURE,
+  HYPOTHETICAL_NAME,
+  privateCreditCase,
+  recommendation,
+} from '@/data/hypothetical';
+import { managementRequired } from '@/lib/readiness';
+import { DisclosureBanner, DistributionBar, ExternalLink, Section } from '@/components/primitives';
 import { CompanyCard } from '@/components/CompanyCard';
+import { CapitalFlowBackground } from '@/components/CapitalFlowBackground';
+import { CountUp, HeroReveal, Reveal } from '@/components/motion';
+import { WorkflowDiagram } from '@/components/home/WorkflowDiagram';
+import { StructureSwitcher, type StructureView } from '@/components/home/StructureSwitcher';
+
+const pct = (n: number, dp = 1) => `${(n * 100).toFixed(dp)}%`;
+
+/* --------------------------------------------------------------- workflow -- */
 
 const WORKFLOW = [
   {
-    step: '01',
-    title: 'Source',
-    body: 'Companies enter through a specific, dated public signal: a financing announcement, a credit facility, an executive hire, a product launch, an enterprise customer win, or independent analyst research. The signal is recorded with its date and channel so freshness can be measured rather than asserted.',
+    n: '01',
+    title: 'Discover',
+    body: 'Companies enter through one dated public event: a financing, a disclosed credit facility, an executive appointment, a product launch, a customer win, or independent analyst research.',
   },
   {
-    step: '02',
+    n: '02',
+    title: 'Verify',
+    body: 'Private status, founders, headquarters, and financing are checked against first party sources. Candidates that fail are removed and recorded rather than quietly replaced.',
+  },
+  {
+    n: '03',
     title: 'Qualify',
-    body: 'Every claim is classified by provenance before it is used. Independently verified, company reported, investor reported, and government reported evidence can support a score. Anything not sufficiently supported cannot, and the scoring engine enforces that in code rather than by convention.',
+    body: 'Every claim is classified by provenance. Evidence that is not sufficiently supported earns zero scoring weight, which the engine enforces in code rather than by convention.',
   },
   {
-    step: '03',
+    n: '04',
     title: 'Contact',
-    body: 'Each company carries executive outreach drafted against its actual product, financing history, and visible capital position, plus three qualification questions and a defined next diligence step. The tone demonstrates executive level research, not representation of a fund.',
+    body: 'Executive outreach is drafted against the company actual product, financing history, and visible capital position, with three qualification questions and a defined next step.',
   },
   {
-    step: '04',
+    n: '05',
     title: 'Underwrite',
-    body: 'A hypothetical SaaS company is modelled end to end across growth equity, private credit, and blended structures, with a live Excel model and a written memorandum showing how the structure choice changes dilution, debt service risk, runway, and returns.',
+    body: 'A hypothetical SaaS company is modelled end to end, with a live Excel workbook and a written memorandum carrying the operating case, the downside, and the recommendation.',
+  },
+  {
+    n: '06',
+    title: 'Structure',
+    body: 'Growth equity, private credit, and blended capital are compared on identical operating assumptions, so every difference in outcome is caused by the structure.',
   },
 ];
 
+/* ------------------------------------------------------------- structures -- */
+
+const STRUCTURE_VIEWS: StructureView[] = [
+  {
+    key: 'equity',
+    label: 'Growth equity',
+    recommended: false,
+    summary:
+      'USD 20.0 million of primary equity at a USD 96.0 million pre-money valuation. No leverage, no covenant, and no debt service. It is the safest structure and the most expensive one in ownership terms.',
+    metrics: [
+      { label: 'Founder dilution', value: pct(growthEquityCase.founderDilution), tone: 'risk' },
+      { label: 'Year five cash', value: `USD ${growthEquityCase.endingCash.toFixed(1)}m` },
+      { label: 'Covenant status', value: 'No covenant', tone: 'positive' },
+      { label: 'Equity MOIC', value: `${growthEquityCase.equityMoic.toFixed(2)}x` },
+      { label: 'Equity IRR', value: pct(growthEquityCase.equityIrr) },
+      { label: 'Downside year five cash', value: 'USD 8.4m', tone: 'positive' },
+    ],
+    caveat:
+      'Existing holders give up 17.2 percent of the company to buy protection they may not need in the base case. It survives the downside comfortably, which is what that price is buying.',
+  },
+  {
+    key: 'credit',
+    label: 'Private credit',
+    recommended: false,
+    summary:
+      'USD 20.0 million senior secured at 11.5 percent cash interest, three years interest only, then 5 percent of original principal amortising annually. There is no dilution at all, which is the entire attraction, and the structure does not work.',
+    metrics: [
+      { label: 'Founder dilution', value: 'None', tone: 'positive' },
+      {
+        label: 'Year five cash',
+        value: `USD ${privateCreditCase.endingCash.toFixed(1)}m`,
+        tone: 'risk',
+      },
+      {
+        label: 'Covenant status',
+        value: `Breach in year ${privateCreditCase.minimumCashBreachYear}`,
+        tone: 'risk',
+      },
+      { label: 'Equity MOIC', value: 'Not applicable' },
+      { label: 'Debt investor IRR', value: pct(privateCreditCase.debtInvestorIrr ?? 0) },
+      { label: 'Downside year five cash', value: 'USD (5.4)m', tone: 'risk' },
+    ],
+    caveat:
+      'Interest coverage is negative in every year until year five because EBITDA is negative, and debt service coverage never approaches 1.0x. Cash breaches the minimum covenant in year four, and in the downside case the company runs out entirely. The lender return is adequate, which is precisely the problem: the instrument works for the lender and not for the borrower.',
+  },
+  {
+    key: 'blended',
+    label: 'Blended capital',
+    recommended: true,
+    summary:
+      'USD 8.0 million of primary equity alongside a USD 12.0 million senior secured facility at 11.0 percent cash interest. The smaller facility prices marginally tighter because leverage against the recurring base is lower.',
+    metrics: [
+      {
+        label: 'Founder dilution',
+        value: pct(blendedCapitalCase.founderDilution),
+        tone: 'positive',
+      },
+      { label: 'Year five cash', value: `USD ${blendedCapitalCase.endingCash.toFixed(1)}m` },
+      { label: 'Covenant status', value: 'No breach', tone: 'positive' },
+      {
+        label: 'Equity MOIC',
+        value: `${blendedCapitalCase.equityMoic.toFixed(2)}x`,
+        tone: 'positive',
+      },
+      { label: 'Equity IRR', value: pct(blendedCapitalCase.equityIrr), tone: 'positive' },
+      { label: 'Downside year five cash', value: 'USD 0.4m', tone: 'risk' },
+    ],
+    caveat: recommendation.caveat,
+  },
+];
+
+/* ------------------------------------------------------------ gap sampling - */
+
+/**
+ * The disclosure gaps that appear most often across the universe, computed from
+ * the records rather than written by hand, so the section cannot drift from the
+ * data it describes.
+ */
+function topGaps(limit = 6) {
+  const counts = new Map<string, number>();
+  companies.forEach((c) =>
+    managementRequired(c)
+      .filter((i) => !i.available)
+      .forEach((i) => counts.set(i.label, (counts.get(i.label) ?? 0) + 1)),
+  );
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, limit)
+    .map(([label, count]) => ({ label, count }));
+}
+
+const TOTAL_GAPS = companies.reduce((s, c) => s + c.missingInformation.length, 0);
+
 export default function HomePage() {
+  const gaps = topGaps();
+
   return (
     <div>
-      {/* Hero */}
-      <section className="border-b border-ink-800 pb-10">
-        <p className="label">Independent growth capital research platform</p>
-        <h1 className="mt-3 max-w-3xl text-3xl font-semibold tracking-tight sm:text-4xl">
-          {SITE.tagline}
-        </h1>
-        <p className="mt-4 max-w-3xl text-sm leading-relaxed text-ink-300">{SITE.description}</p>
+      {/* ============================================================= Hero == */}
+      <section className="relative isolate overflow-hidden border-b border-white/[0.07]">
+        <CapitalFlowBackground />
 
-        <div className="mt-6 flex flex-wrap gap-2.5">
-          <Link
-            href="/universe/"
-            className="rounded-md bg-accent-500 px-4 py-2 text-xs font-semibold text-ink-950 transition-colors hover:bg-accent-400"
-          >
-            View the sourcing universe
-          </Link>
-          <Link
-            href="/underwriting/"
-            className="rounded-md border border-ink-700 px-4 py-2 text-xs font-semibold text-ink-200 transition-colors hover:border-ink-600 hover:bg-ink-900"
-          >
-            Hypothetical underwriting case
-          </Link>
-          <a
-            href={DOWNLOADS.model.href}
-            className="rounded-md border border-ink-700 px-4 py-2 text-xs font-semibold text-ink-200 transition-colors hover:border-ink-600 hover:bg-ink-900"
-          >
-            Download Excel model
-          </a>
-          <a
-            href={DOWNLOADS.memo.href}
-            className="rounded-md border border-ink-700 px-4 py-2 text-xs font-semibold text-ink-200 transition-colors hover:border-ink-600 hover:bg-ink-900"
-          >
-            Download PDF memorandum
-          </a>
-          <ExternalLink
-            href={SITE.github}
-            className="rounded-md border border-ink-700 px-4 py-2 text-xs font-semibold text-ink-200 transition-colors hover:border-ink-600 hover:bg-ink-900"
-          >
-            GitHub repository
-          </ExternalLink>
-        </div>
-      </section>
-
-      {/* Stats */}
-      <section className="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatTile
-          label="Private companies"
-          value={String(companies.length)}
-          sub="Real, independently operating, privately held"
-        />
-        <StatTile label="Sectors covered" value={String(sectorDistribution.length)} sub="Enterprise software categories" />
-        <StatTile label="Dated sources" value={String(totalSources)} sub="Primary and corroborating, all linked" />
-        <StatTile label="Discovery channels" value={String(channelDistribution.length)} sub="Distinct origination signals" />
-      </section>
-
-      {/* Workflow */}
-      <Section
-        title="How the workflow runs"
-        description="Four stages, each producing an artefact the next stage can audit."
-      >
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {WORKFLOW.map((w) => (
-            <div key={w.step} className="panel p-4">
-              <p className="num text-accent-400">{w.step}</p>
-              <h3 className="mt-1.5 text-sm font-semibold text-ink-50">{w.title}</h3>
-              <p className="mt-2 text-xs leading-relaxed text-ink-400">{w.body}</p>
-            </div>
-          ))}
-        </div>
-      </Section>
-
-      {/* Top priorities */}
-      <Section
-        title="Top six origination priorities"
-        description="Ranked by Origination Priority Score. Every rating, its evidence, its source, and whether it is verified fact or analyst judgment is shown on the company page."
-      >
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {topPriorities.map((c, i) => (
-            <CompanyCard key={c.slug} company={c} rank={i + 1} />
-          ))}
-        </div>
-        <p className="mt-4 text-xs text-ink-500">
-          <Link href="/universe/" className="link">
-            View all {companies.length} companies in the universe
-          </Link>
-        </p>
-      </Section>
-
-      {/* Distributions */}
-      <Section
-        title="Universe composition"
-        description="Distribution across sector, financing stage, signal freshness, and the leading capital solution view for each company."
-      >
-        <div className="grid gap-4 lg:grid-cols-2">
-          <div className="panel p-4">
-            <h3 className="text-sm font-semibold text-ink-100">Sector distribution</h3>
-            <div className="mt-3">
-              <DistributionBar items={sectorDistribution} total={companies.length} />
-            </div>
-          </div>
-
-          <div className="panel p-4">
-            <h3 className="text-sm font-semibold text-ink-100">Financing stage distribution</h3>
-            <div className="mt-3">
-              <DistributionBar items={stageDistribution} total={companies.length} />
-            </div>
-          </div>
-
-          <div className="panel p-4">
-            <h3 className="text-sm font-semibold text-ink-100">Signal freshness distribution</h3>
-            <p className="mt-1 text-2xs leading-relaxed text-ink-500">
-              Fresh is within 90 days of the review date, Recent is within 12 months, Established is
-              older. Freshness influences outreach priority but does not override company quality.
-            </p>
-            <div className="mt-3">
-              <DistributionBar items={freshnessDistribution} total={companies.length} />
-            </div>
-          </div>
-
-          <div className="panel p-4">
-            <h3 className="text-sm font-semibold text-ink-100">Capital solution distribution</h3>
-            <p className="mt-1 text-2xs leading-relaxed text-ink-500">
-              The highest of the three separate fit assessments for each company. Ties resolve
-              toward the more conservative instrument.
-            </p>
-            <div className="mt-3">
-              <DistributionBar items={capitalSolutionDistribution} total={companies.length} />
-            </div>
-          </div>
-        </div>
-      </Section>
-
-      {/* Underwriting */}
-      <Section
-        title="Hypothetical underwriting case"
-        description="A clearly isolated illustrative company used to show how the same capital requirement produces materially different outcomes under three structures."
-      >
-        <div className="panel p-5">
-          <DisclosureBanner tone="warning">{HYPOTHETICAL_DISCLOSURE}</DisclosureBanner>
-
-          <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+        <div className="relative mx-auto w-full max-w-[86rem] px-4 pb-16 pt-14 sm:px-6 sm:pb-20 sm:pt-20 lg:px-8">
+          <div className="grid items-start gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
             <div>
-              <h3 className="text-sm font-semibold text-ink-50">{HYPOTHETICAL_NAME}</h3>
-              <p className="mt-2 text-xs leading-relaxed text-ink-400">
-                Approximately USD 12 million of beginning ARR growing 30 percent, 110 percent net
-                revenue retention, 88 percent gross retention, 78 percent gross margin, negative
-                EBITDA, and a requirement for approximately USD 20 million of growth capital.
+              <HeroReveal index={0}>
+                <p className="eyebrow">Independent growth capital research platform</p>
+              </HeroReveal>
+
+              <HeroReveal index={1}>
+                <h1 className="mt-4 max-w-[15ch] font-display text-hero font-semibold text-ivory-50">
+                  Source, qualify, and underwrite B2B software companies.
+                </h1>
+              </HeroReveal>
+
+              <HeroReveal index={2}>
+                <p className="lede mt-6 max-w-prose">
+                  The engine converts fragmented public signals into prioritized executive outreach,
+                  preliminary SaaS qualification, capital solution views, structured diligence, and
+                  an illustrative underwriting case. It is built to be explicit about what public
+                  sources cannot establish.
+                </p>
+              </HeroReveal>
+
+              <HeroReveal index={3}>
+                <div className="mt-8 flex flex-wrap gap-2.5">
+                  <Link href="/universe/" className="btn-primary">
+                    Explore the sourcing universe
+                  </Link>
+                  <Link href="/underwriting/" className="btn-secondary">
+                    Review the underwriting case
+                  </Link>
+                </div>
+              </HeroReveal>
+
+              <HeroReveal index={4}>
+                <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
+                  <a href={DOWNLOADS.model.href} className="link-quiet text-xs">
+                    Download Excel model
+                  </a>
+                  <a href={DOWNLOADS.memo.href} className="link-quiet text-xs">
+                    Download investment memorandum
+                  </a>
+                  <ExternalLink href={SITE.github} className="link-quiet text-xs">
+                    View source code
+                  </ExternalLink>
+                </div>
+              </HeroReveal>
+            </div>
+
+            <HeroReveal index={3} className="lg:pt-10">
+              <WorkflowDiagram />
+            </HeroReveal>
+          </div>
+        </div>
+      </section>
+
+      <div className="mx-auto w-full max-w-[86rem] px-4 sm:px-6 lg:px-8">
+        {/* ================================================== Credibility == */}
+        <section className="mt-14">
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-6">
+            {[
+              {
+                label: 'Verified private companies',
+                value: companies.length,
+                sub: 'Real, private, independently operating',
+              },
+              {
+                label: 'Enterprise software sectors',
+                value: sectorDistribution.length,
+                sub: 'Across the universe',
+              },
+              { label: 'Dated sources', value: totalSources, sub: 'Primary and corroborating' },
+              { label: 'Capital structures', value: 3, sub: 'Equity, credit, blended' },
+              { label: 'Excel model sheets', value: 14, sub: 'All live formulas' },
+              { label: 'Enumerated data gaps', value: TOTAL_GAPS, sub: 'Never estimated' },
+            ].map((s, i) => (
+              <Reveal key={s.label} index={i} stagger={55} className="panel px-4 py-4">
+                <p className="num text-3xl font-semibold text-ivory-50">
+                  <CountUp value={s.value} />
+                </p>
+                <p className="label mt-2">{s.label}</p>
+                <p className="mt-1.5 text-3xs leading-snug text-slate-600">{s.sub}</p>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+
+        {/* ===================================================== Workflow == */}
+        <Section
+          title="How origination runs"
+          description="Six stages, each producing an artefact the next stage can audit."
+        >
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {WORKFLOW.map((w, i) => (
+              <Reveal
+                key={w.n}
+                index={i}
+                stagger={50}
+                className="panel p-5 transition-colors duration-200 hover:border-white/15"
+              >
+                <div className="flex items-baseline gap-3">
+                  <span className="num text-sm font-semibold text-cobalt-400">{w.n}</span>
+                  <h3 className="font-display text-base font-semibold text-ivory-50">{w.title}</h3>
+                </div>
+                <p className="mt-3 text-xs leading-relaxed text-slate-400">{w.body}</p>
+              </Reveal>
+            ))}
+          </div>
+        </Section>
+
+        {/* ============================================ Priority companies == */}
+        <Section
+          title="Priority opportunities"
+          description="The six highest ranked companies by Origination Priority Score. Every rating, its evidence, its source, and whether it is verified fact or analyst judgment is shown on the company page."
+          actions={
+            <Link href="/universe/" className="btn-ghost text-xs">
+              All {companies.length} companies
+            </Link>
+          }
+        >
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {topPriorities.map((c, i) => (
+              <Reveal key={c.slug} index={i} stagger={55} className="min-w-0">
+                <CompanyCard company={c} rank={i + 1} />
+              </Reveal>
+            ))}
+          </div>
+        </Section>
+
+        {/* =============================================== Disclosure gaps == */}
+        <Section
+          title="Why public information is not enough"
+          description="The engine identifies what must be learned before underwriting rather than inventing the metrics that are missing."
+        >
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+            <Reveal className="surface-light p-6">
+              <p className="text-3xs font-semibold uppercase tracking-[0.16em] text-slate-700">
+                The constraint
               </p>
-            </div>
-            <div>
-              <p className="label">Recommended illustrative structure</p>
-              <p className="mt-1.5 text-sm font-semibold text-accent-300">{recommendation.structure}</p>
-              <p className="mt-1.5 text-xs leading-relaxed text-ink-400">{recommendation.headline}</p>
-            </div>
+              <p className="mt-3 text-[0.9375rem] leading-relaxed text-slate-800">
+                Growth equity underwriting can begin from things that are often public: category,
+                growth direction, customer quality, and management. Private credit underwriting
+                cannot. It turns on contracted ARR, gross margin, retention, burn, cash balance,
+                existing leverage, and debt service capacity.
+              </p>
+              <p className="mt-4 text-[0.9375rem] leading-relaxed text-slate-800">
+                Private companies disclose almost none of that. Rather than estimate around the gap,
+                every record enumerates it, and the scoring engine refuses to award positive weight
+                to anything the public record does not establish.
+              </p>
+              <p className="mt-5 border-t border-ivory-300 pt-4 text-xs leading-relaxed text-slate-700">
+                Across {companies.length} companies there are{' '}
+                <span className="num font-semibold text-slate-900">{TOTAL_GAPS}</span> separately
+                enumerated gaps. That number is meant to be uncomfortable. It is the honest measure
+                of how much private company underwriting cannot be done from public sources.
+              </p>
+            </Reveal>
+
+            <Reveal index={1} className="panel p-6">
+              <p className="label">Most common undisclosed metrics</p>
+              <ul className="mt-4 space-y-3">
+                {gaps.map((g) => (
+                  <li key={g.label}>
+                    <div className="flex items-baseline justify-between gap-3">
+                      <span className="text-xs text-slate-300">{g.label}</span>
+                      <span className="num shrink-0 text-2xs text-slate-500">
+                        {g.count} of {companies.length}
+                      </span>
+                    </div>
+                    <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-navy-800">
+                      <div
+                        className="h-full rounded-full bg-risk-500/70"
+                        style={{ width: `${(g.count / companies.length) * 100}%` }}
+                      />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-5 border-t border-white/[0.07] pt-4 text-2xs leading-relaxed text-slate-500">
+                Each company page carries an underwriting readiness panel separating what the public
+                record supports, what must come from management, and what a full data room would
+                need.
+              </p>
+            </Reveal>
+          </div>
+        </Section>
+
+        {/* ============================================= Structure switch == */}
+        <Section
+          title="The same capital, three ways"
+          description={`Growth equity, private credit, and blended capital applied to ${HYPOTHETICAL_NAME}. The operating forecast is identical across all three, so every difference is caused by the structure rather than by the business.`}
+        >
+          <div className="mb-4">
+            <DisclosureBanner tone="warning">{HYPOTHETICAL_DISCLOSURE}</DisclosureBanner>
+          </div>
+          <Reveal>
+            <StructureSwitcher views={STRUCTURE_VIEWS} />
+          </Reveal>
+          <div className="mt-4 flex flex-wrap gap-2.5">
+            <Link href="/structures/" className="btn-secondary">
+              Full structure comparison
+            </Link>
+            <Link href="/underwriting/" className="btn-ghost">
+              Operating model and downside case
+            </Link>
+          </div>
+        </Section>
+
+        {/* ================================================= Composition == */}
+        <Section
+          title="Universe composition"
+          description={`${companies.length} companies across ${sectorDistribution.length} sectors, including ${emergingTargets.length} emerging origination targets held to the same verification standard as the benchmark set.`}
+        >
+          <div className="grid gap-4 lg:grid-cols-2">
+            {[
+              { title: 'Sector', items: sectorDistribution, note: undefined },
+              { title: 'Financing stage', items: stageDistribution, note: undefined },
+              {
+                title: 'Signal freshness',
+                items: freshnessDistribution,
+                note: 'Fresh is within 90 days of the review date, Recent within 12 months. Freshness influences outreach sequencing but never the score.',
+              },
+              {
+                title: 'Leading capital solution',
+                items: capitalSolutionDistribution,
+                note: 'The highest of the three separate fit assessments. Ties resolve toward the more conservative instrument.',
+              },
+            ].map((block, i) => (
+              <Reveal key={block.title} index={i} stagger={50} className="panel p-5">
+                <h3 className="text-sm font-semibold text-ivory-50">{block.title}</h3>
+                {block.note ? (
+                  <p className="mt-1.5 text-2xs leading-relaxed text-slate-500">{block.note}</p>
+                ) : null}
+                <div className="mt-4">
+                  <DistributionBar items={block.items} total={companies.length} />
+                </div>
+              </Reveal>
+            ))}
+          </div>
+          <p className="mt-4 text-xs text-slate-500">
+            Discovery channels span {channelDistribution.length} distinct origination signals.{' '}
+            <Link href="/universe/" className="link">
+              See the full universe and the exclusion register
+            </Link>
+          </p>
+        </Section>
+
+        {/* =================================================== Downloads == */}
+        <Section
+          title="Work product"
+          description="Both artefacts are static files committed to the repository and generated from the same model constants that drive this site."
+        >
+          <div className="grid gap-4 sm:grid-cols-2">
+            {[
+              {
+                d: DOWNLOADS.model,
+                type: 'XLSX',
+                meta: '14 sheets',
+                detail:
+                  'Every input is an editable cell on the Assumptions sheet and every output is a live formula. Change an assumption and the SaaS metrics, debt schedules, returns, sensitivities, and downside case all recalculate.',
+              },
+              {
+                d: DOWNLOADS.memo,
+                type: 'PDF',
+                meta: '5 pages',
+                detail:
+                  'Executive summary, SaaS quality assessment, three structure alternatives with debt schedules and charts, key risks, and a conditional recommendation with its own stated limits.',
+              },
+            ].map((x, i) => (
+              <Reveal key={x.d.href} index={i} stagger={60} className="min-w-0">
+                <a
+                  href={x.d.href}
+                  className="panel flex h-full min-w-0 flex-col p-5 transition-[transform,border-color,box-shadow] duration-200 ease-standard hover:border-white/15 hover:shadow-lift motion-safe:hover:-translate-y-0.5"
+                >
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <span className="num rounded border border-cobalt-500/40 bg-cobalt-700/25 px-1.5 py-0.5 text-3xs font-bold text-cobalt-200">
+                      {x.type}
+                    </span>
+                    <span className="text-2xs text-slate-500">{x.meta}</span>
+                    <span className="text-2xs text-slate-600">Updated 6 Aug 2026</span>
+                  </div>
+                  <p className="mt-3 font-display text-base font-semibold text-ivory-50">
+                    {x.d.title}
+                  </p>
+                  <p className="mt-2 text-xs leading-relaxed text-slate-400">{x.detail}</p>
+                  <p className="num mt-4 break-all text-2xs text-cobalt-300">{x.d.label}</p>
+                  <span className="btn-secondary mt-4 w-full">Download</span>
+                </a>
+              </Reveal>
+            ))}
+          </div>
+        </Section>
+
+        {/* ================================================= Methodology == */}
+        <Section
+          title="Methodology and disclosure"
+          description="What this research is, how it was assembled, and what it deliberately refuses to conclude."
+        >
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              {
+                t: 'Static dated research',
+                b: 'Every company record is a snapshot with a review date on the page. Nothing is fetched live, so what you read is what was verified.',
+              },
+              {
+                t: 'Source classification',
+                b: 'Primary sources are first party. Corroborating sources are independent. A press release reproduction is flagged, because reproducing an announcement is not verifying it.',
+              },
+              {
+                t: 'Missing data policy',
+                b: 'Where public sources do not disclose something the record says so. ARR, retention, margin, burn, runway, and valuation are never estimated.',
+              },
+              {
+                t: 'Hypothetical underwriting',
+                b: `${HYPOTHETICAL_NAME} is hypothetical and appears only in the underwriting case, the structure comparison, the Excel model, and the memorandum.`,
+              },
+            ].map((x, i) => (
+              <Reveal key={x.t} index={i} stagger={45} className="panel p-5">
+                <h3 className="text-sm font-semibold text-ivory-50">{x.t}</h3>
+                <p className="mt-2.5 text-xs leading-relaxed text-slate-400">{x.b}</p>
+              </Reveal>
+            ))}
           </div>
 
-          <div className="mt-5 flex flex-wrap gap-2.5 border-t border-ink-800 pt-4">
-            <Link
-              href="/underwriting/"
-              className="rounded-md bg-accent-500 px-3.5 py-2 text-xs font-semibold text-ink-950 hover:bg-accent-400"
-            >
-              Open the underwriting case
+          <div className="mt-4 grid gap-3 lg:grid-cols-2">
+            <Reveal className="panel p-5">
+              <p className="label">Development disclosure</p>
+              <p className="mt-2.5 text-xs leading-relaxed text-slate-300">
+                {DEVELOPMENT_DISCLOSURE}
+              </p>
+            </Reveal>
+            <Reveal index={1} className="panel p-5">
+              <p className="label">Independent work sample</p>
+              <p className="mt-2.5 text-xs leading-relaxed text-slate-300">{DISCLOSURE}</p>
+            </Reveal>
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-2.5">
+            <Link href="/methodology/" className="btn-secondary">
+              Full methodology
             </Link>
-            <Link
-              href="/structures/"
-              className="rounded-md border border-ink-700 px-3.5 py-2 text-xs font-semibold text-ink-200 hover:bg-ink-900"
-            >
-              Compare the three structures
+            <Link href="/sources/" className="btn-ghost">
+              Source registry
+            </Link>
+            <Link href="/about/" className="btn-ghost">
+              About this project
             </Link>
           </div>
-        </div>
-      </Section>
+        </Section>
 
-      {/* Downloads */}
-      <Section title="Downloads" description="Both artefacts are committed to the repository and served as static files.">
-        <div className="grid gap-3 sm:grid-cols-2">
-          {[DOWNLOADS.model, DOWNLOADS.memo].map((d) => (
-            <a key={d.href} href={d.href} className="panel block min-w-0 p-4 transition-colors hover:border-ink-700 hover:bg-ink-850">
-              <p className="text-sm font-semibold text-ink-50">{d.title}</p>
-              <p className="mt-1.5 text-xs leading-relaxed text-ink-400">{d.description}</p>
-              <p className="num mt-3 break-all text-accent-400">{d.label}</p>
-            </a>
-          ))}
+        <div className="mt-14">
+          <DisclosureBanner>{DISCLOSURE}</DisclosureBanner>
         </div>
-      </Section>
-
-      <div className="mt-12">
-        <DisclosureBanner>{DISCLOSURE}</DisclosureBanner>
       </div>
     </div>
   );

@@ -20,7 +20,9 @@ import {
   type DebtYear,
   type StructureResult,
 } from '@/data/hypothetical';
-import { DisclosureBanner, PageHeader, Section } from '@/components/primitives';
+import { DisclosureBanner, PageHeader, PageShell, Section } from '@/components/primitives';
+import { SectionNav } from '@/components/SectionNav';
+import { ReadingProgress } from '@/components/motion';
 import { DataTable, type Column } from '@/components/DataTable';
 
 export const metadata: Metadata = {
@@ -66,17 +68,27 @@ function CashSchedule({ s }: { s: StructureResult }) {
           align: 'right',
           render: (r) =>
             r.breachesMinimumCash ? (
-              <span className="rounded border border-rose-800/50 bg-rose-950/40 px-1.5 py-0.5 text-2xs text-rose-300">
+              <span className="rounded border border-risk-500/40 bg-risk-700/22 px-1.5 py-0.5 text-2xs text-risk-200">
                 Breach
               </span>
             ) : (
-              <span className="text-ink-600">Headroom</span>
+              <span className="text-slate-600">Headroom</span>
             ),
         },
       ]}
     />
   );
 }
+
+
+const SECTIONS = [
+  { id: 'comparison', label: 'Side by side' },
+  { id: 'equity', label: 'Growth equity case' },
+  { id: 'credit', label: 'Private credit case' },
+  { id: 'blended', label: 'Blended capital case' },
+  { id: 'sensitivities', label: 'Sensitivities' },
+  { id: 'recommendation', label: 'Recommendation' },
+];
 
 export default function StructuresPage() {
   const comparison = [
@@ -103,7 +115,8 @@ export default function StructuresPage() {
   ];
 
   return (
-    <div>
+    <PageShell>
+      <ReadingProgress />
       <PageHeader
         eyebrow="Equity, debt, and blended structure comparison"
         title="The same USD 20 million, three ways"
@@ -114,15 +127,23 @@ export default function StructuresPage() {
         <DisclosureBanner tone="warning">{HYPOTHETICAL_DISCLOSURE}</DisclosureBanner>
       </div>
 
-      <Section title="Side by side comparison">
-        <div className="table-scroll">
+      <div className="lg:grid lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-10">
+        <aside className="hidden lg:block">
+          <div className="sticky top-24 pt-14">
+            <SectionNav sections={SECTIONS} />
+          </div>
+        </aside>
+        <div className="min-w-0">
+
+      <Section id="comparison" title="Side by side comparison">
+        <div className="table-scroll" tabIndex={0} role="region" aria-label="Scrollable table">
           <table className="w-full min-w-[46rem] border-collapse text-left">
             <thead>
-              <tr className="border-b border-ink-800">
+              <tr className="border-b border-white/[0.07]">
                 <th scope="col" className="px-3 py-2"><span className="label">Metric</span></th>
                 {structures.map((s) => (
                   <th key={s.key} scope="col" className="px-3 py-2 text-right">
-                    <span className={`label ${s.key === 'blended' ? 'text-accent-400' : ''}`}>
+                    <span className={`label ${s.key === 'blended' ? 'text-cobalt-400' : ''}`}>
                       {s.label}
                       {s.key === 'blended' ? ' (recommended)' : ''}
                     </span>
@@ -132,13 +153,13 @@ export default function StructuresPage() {
             </thead>
             <tbody>
               {comparison.map((row) => (
-                <tr key={row.label} className="border-b border-ink-800/60">
-                  <td className="px-3 py-2.5 text-xs text-ink-400">{row.label}</td>
+                <tr key={row.label} className="border-b border-white/[0.06]">
+                  <td className="px-3 py-2.5 text-xs text-slate-400">{row.label}</td>
                   {structures.map((s) => (
                     <td
                       key={s.key}
                       className={`num px-3 py-2.5 text-right ${
-                        s.key === 'blended' ? 'font-semibold text-accent-200' : 'text-ink-200'
+                        s.key === 'blended' ? 'font-semibold text-cobalt-200' : 'text-slate-200'
                       }`}
                     >
                       {row.get(s)}
@@ -149,11 +170,12 @@ export default function StructuresPage() {
             </tbody>
           </table>
         </div>
-        <p className="mt-2 text-2xs text-ink-600">{ILLUSTRATIVE_FOOTER}</p>
+        <p className="mt-2 text-2xs text-slate-600">{ILLUSTRATIVE_FOOTER}</p>
       </Section>
 
       {/* Growth equity */}
       <Section
+        id="equity"
         title="Growth equity case"
         description={`USD ${growthEquityCase.equityInvested.toFixed(1)} million of primary equity at a USD ${growthEquityCase.preMoneyValuation.toFixed(1)} million pre-money valuation, being ${transactionAssumptions.entryArrMultiple.toFixed(1)}x beginning ARR.`}
       >
@@ -166,14 +188,14 @@ export default function StructuresPage() {
           ].map(([k, v]) => (
             <div key={k} className="panel px-4 py-3">
               <p className="label">{k}</p>
-              <p className="mt-1 font-mono text-lg font-semibold text-ink-50">{v}</p>
+              <p className="mt-1 font-mono text-lg font-semibold text-ivory-50">{v}</p>
             </div>
           ))}
         </div>
         <div className="mt-4">
           <CashSchedule s={growthEquityCase} />
         </div>
-        <p className="mt-3 max-w-3xl text-xs leading-relaxed text-ink-400">
+        <p className="mt-3 max-w-3xl text-xs leading-relaxed text-slate-400">
           The all equity structure is the safest and the most expensive. It never approaches the
           minimum cash covenant and survives the downside case comfortably, but it costs existing
           holders {p(growthEquityCase.founderDilution)} of the company to achieve that.
@@ -182,6 +204,7 @@ export default function StructuresPage() {
 
       {/* Private credit */}
       <Section
+        id="credit"
         title="Private credit case"
         description={`USD ${creditCaseAssumptions.principal.toFixed(1)} million senior secured, ${p(creditCaseAssumptions.cashInterestRate)} cash interest, ${creditCaseAssumptions.maturityYears} year maturity, ${creditCaseAssumptions.interestOnlyYears} years interest only, then ${p(creditCaseAssumptions.amortisationPctOfPrincipal)} of original principal amortising annually, with ${p(creditCaseAssumptions.originalIssueDiscount)} original issue discount and no PIK in the base case.`}
       >
@@ -194,7 +217,7 @@ export default function StructuresPage() {
           ].map(([k, v]) => (
             <div key={k} className="panel px-4 py-3">
               <p className="label">{k}</p>
-              <p className="mt-1 font-mono text-lg font-semibold text-ink-50">{v}</p>
+              <p className="mt-1 font-mono text-lg font-semibold text-ivory-50">{v}</p>
             </div>
           ))}
         </div>
@@ -214,9 +237,9 @@ export default function StructuresPage() {
           <CashSchedule s={privateCreditCase} />
         </div>
 
-        <div className="mt-4 rounded-md border border-rose-900/50 bg-rose-950/20 p-4">
-          <p className="text-xs font-semibold text-rose-200">The all debt structure does not work</p>
-          <p className="mt-1.5 max-w-3xl text-xs leading-relaxed text-rose-200/80">
+        <div className="mt-4 rounded-md border border-risk-500/40 bg-risk-700/15 p-4">
+          <p className="text-xs font-semibold text-risk-200">The all debt structure does not work</p>
+          <p className="mt-1.5 max-w-3xl text-xs leading-relaxed text-risk-200/85">
             Interest coverage is negative in every year until year five because EBITDA is negative,
             and debt service coverage never approaches 1.0x. Cash falls to USD{' '}
             {privateCreditCase.lowestCash.toFixed(1)} million and breaches the USD{' '}
@@ -232,6 +255,7 @@ export default function StructuresPage() {
 
       {/* Blended */}
       <Section
+        id="blended"
         title="Blended capital case"
         description={`USD ${blendedCaseAssumptions.equityComponent.toFixed(1)} million of primary equity alongside a USD ${blendedCaseAssumptions.debtComponent.toFixed(1)} million senior secured facility at ${p(blendedCaseAssumptions.cashInterestRate)} cash interest, ${blendedCaseAssumptions.interestOnlyYears} years interest only, then ${p(blendedCaseAssumptions.amortisationPctOfPrincipal)} of original principal amortising annually, with ${p(blendedCaseAssumptions.originalIssueDiscount)} original issue discount.`}
       >
@@ -244,7 +268,7 @@ export default function StructuresPage() {
           ].map(([k, v]) => (
             <div key={k} className="panel px-4 py-3">
               <p className="label">{k}</p>
-              <p className="mt-1 font-mono text-lg font-semibold text-accent-200">{v}</p>
+              <p className="mt-1 font-mono text-lg font-semibold text-cobalt-200">{v}</p>
             </div>
           ))}
         </div>
@@ -264,9 +288,9 @@ export default function StructuresPage() {
           <CashSchedule s={blendedCapitalCase} />
         </div>
 
-        <div className="mt-4 rounded-md border border-accent-600/40 bg-accent-600/10 p-4">
-          <p className="text-xs font-semibold text-accent-200">Combined company cash impact</p>
-          <p className="mt-1.5 max-w-3xl text-xs leading-relaxed text-accent-100/80">
+        <div className="mt-4 rounded-md border border-cobalt-600/40 bg-cobalt-700/15 p-4">
+          <p className="text-xs font-semibold text-cobalt-200">Combined company cash impact</p>
+          <p className="mt-1.5 max-w-3xl text-xs leading-relaxed text-cobalt-100/80">
             The blended structure raises the same USD {transactionAssumptions.capitalRaised.toFixed(1)}{' '}
             million while diluting existing holders by {p(blendedCapitalCase.founderDilution)} rather
             than {p(growthEquityCase.founderDilution)}, a saving of{' '}
@@ -285,18 +309,19 @@ export default function StructuresPage() {
 
       {/* Sensitivities */}
       <Section
+        id="sensitivities"
         title="Sensitivities"
         description="Each table holds everything else constant and moves a single driver, so the effect is attributable."
       >
         <div className="grid gap-4 lg:grid-cols-2">
           <div className="panel p-4">
-            <h3 className="text-sm font-semibold text-ink-100">Exit multiple sensitivity</h3>
-            <p className="mt-1 text-2xs text-ink-500">
+            <h3 className="text-sm font-semibold text-slate-100">Exit multiple sensitivity</h3>
+            <p className="mt-1 text-2xs text-slate-500">
               Blended capital equity investor outcomes across exit ARR multiples.
             </p>
             <table className="mt-3 w-full text-left">
               <thead>
-                <tr className="border-b border-ink-800">
+                <tr className="border-b border-white/[0.07]">
                   <th className="py-1.5"><span className="label">Exit multiple</span></th>
                   <th className="py-1.5 text-right"><span className="label">Equity value</span></th>
                   <th className="py-1.5 text-right"><span className="label">MOIC</span></th>
@@ -305,11 +330,11 @@ export default function StructuresPage() {
               </thead>
               <tbody>
                 {exitMultipleSensitivity(blendedCapitalCase).map((r) => (
-                  <tr key={r.multiple} className="border-b border-ink-800/50">
-                    <td className="num py-1.5 text-ink-300">{r.multiple.toFixed(1)}x</td>
-                    <td className="num py-1.5 text-right text-ink-300">{r.equityValue.toFixed(1)}</td>
-                    <td className="num py-1.5 text-right font-semibold text-ink-100">{r.moic.toFixed(2)}x</td>
-                    <td className="num py-1.5 text-right text-ink-300">{p(r.irr)}</td>
+                  <tr key={r.multiple} className="border-b border-white/[0.07]/50">
+                    <td className="num py-1.5 text-slate-300">{r.multiple.toFixed(1)}x</td>
+                    <td className="num py-1.5 text-right text-slate-300">{r.equityValue.toFixed(1)}</td>
+                    <td className="num py-1.5 text-right font-semibold text-slate-100">{r.moic.toFixed(2)}x</td>
+                    <td className="num py-1.5 text-right text-slate-300">{p(r.irr)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -317,13 +342,13 @@ export default function StructuresPage() {
           </div>
 
           <div className="panel p-4">
-            <h3 className="text-sm font-semibold text-ink-100">ARR growth sensitivity</h3>
-            <p className="mt-1 text-2xs text-ink-500">
+            <h3 className="text-sm font-semibold text-slate-100">ARR growth sensitivity</h3>
+            <p className="mt-1 text-2xs text-slate-500">
               Year one growth varied, with the same annual decay applied thereafter.
             </p>
             <table className="mt-3 w-full text-left">
               <thead>
-                <tr className="border-b border-ink-800">
+                <tr className="border-b border-white/[0.07]">
                   <th className="py-1.5"><span className="label">Year one growth</span></th>
                   <th className="py-1.5 text-right"><span className="label">Year five ARR</span></th>
                   <th className="py-1.5 text-right"><span className="label">Exit EV at 7.0x</span></th>
@@ -331,10 +356,10 @@ export default function StructuresPage() {
               </thead>
               <tbody>
                 {growthSensitivity().map((r) => (
-                  <tr key={r.rate} className="border-b border-ink-800/50">
-                    <td className="num py-1.5 text-ink-300">{p(r.rate, 0)}</td>
-                    <td className="num py-1.5 text-right font-semibold text-ink-100">{r.endingArr.toFixed(1)}</td>
-                    <td className="num py-1.5 text-right text-ink-300">{r.exitEvAt7x.toFixed(1)}</td>
+                  <tr key={r.rate} className="border-b border-white/[0.07]/50">
+                    <td className="num py-1.5 text-slate-300">{p(r.rate, 0)}</td>
+                    <td className="num py-1.5 text-right font-semibold text-slate-100">{r.endingArr.toFixed(1)}</td>
+                    <td className="num py-1.5 text-right text-slate-300">{r.exitEvAt7x.toFixed(1)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -342,23 +367,23 @@ export default function StructuresPage() {
           </div>
 
           <div className="panel p-4">
-            <h3 className="text-sm font-semibold text-ink-100">Retention sensitivity</h3>
-            <p className="mt-1 text-2xs text-ink-500">
+            <h3 className="text-sm font-semibold text-slate-100">Retention sensitivity</h3>
+            <p className="mt-1 text-2xs text-slate-500">
               Net revenue retention varied while holding the ARR growth target fixed. Lower retention
               means more new ARR must be sold to reach the same ending ARR.
             </p>
             <table className="mt-3 w-full text-left">
               <thead>
-                <tr className="border-b border-ink-800">
+                <tr className="border-b border-white/[0.07]">
                   <th className="py-1.5"><span className="label">Net revenue retention</span></th>
                   <th className="py-1.5 text-right"><span className="label">Year one new ARR required</span></th>
                 </tr>
               </thead>
               <tbody>
                 {retentionSensitivity().map((r) => (
-                  <tr key={r.nrr} className="border-b border-ink-800/50">
-                    <td className="num py-1.5 text-ink-300">{p(r.nrr, 0)}</td>
-                    <td className="num py-1.5 text-right font-semibold text-ink-100">{r.newArrYear1.toFixed(2)}</td>
+                  <tr key={r.nrr} className="border-b border-white/[0.07]/50">
+                    <td className="num py-1.5 text-slate-300">{p(r.nrr, 0)}</td>
+                    <td className="num py-1.5 text-right font-semibold text-slate-100">{r.newArrYear1.toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -366,14 +391,14 @@ export default function StructuresPage() {
           </div>
 
           <div className="panel p-4">
-            <h3 className="text-sm font-semibold text-ink-100">Interest rate sensitivity</h3>
-            <p className="mt-1 text-2xs text-ink-500">
+            <h3 className="text-sm font-semibold text-slate-100">Interest rate sensitivity</h3>
+            <p className="mt-1 text-2xs text-slate-500">
               Applied to the USD {blendedCaseAssumptions.debtComponent.toFixed(1)} million blended
               facility, showing where the minimum cash covenant starts to bind.
             </p>
             <table className="mt-3 w-full text-left">
               <thead>
-                <tr className="border-b border-ink-800">
+                <tr className="border-b border-white/[0.07]">
                   <th className="py-1.5"><span className="label">Cash interest rate</span></th>
                   <th className="py-1.5 text-right"><span className="label">Annual interest</span></th>
                   <th className="py-1.5 text-right"><span className="label">Lowest cash</span></th>
@@ -382,11 +407,11 @@ export default function StructuresPage() {
               </thead>
               <tbody>
                 {interestRateSensitivity().map((r) => (
-                  <tr key={r.rate} className="border-b border-ink-800/50">
-                    <td className="num py-1.5 text-ink-300">{p(r.rate, 0)}</td>
-                    <td className="num py-1.5 text-right text-ink-300">{r.annualCashInterest.toFixed(2)}</td>
-                    <td className="num py-1.5 text-right font-semibold text-ink-100">{r.lowestCash.toFixed(1)}</td>
-                    <td className="num py-1.5 text-right text-ink-300">
+                  <tr key={r.rate} className="border-b border-white/[0.07]/50">
+                    <td className="num py-1.5 text-slate-300">{p(r.rate, 0)}</td>
+                    <td className="num py-1.5 text-right text-slate-300">{r.annualCashInterest.toFixed(2)}</td>
+                    <td className="num py-1.5 text-right font-semibold text-slate-100">{r.lowestCash.toFixed(1)}</td>
+                    <td className="num py-1.5 text-right text-slate-300">
                       {r.breachYear === null ? 'None' : `Year ${r.breachYear}`}
                     </td>
                   </tr>
@@ -395,31 +420,33 @@ export default function StructuresPage() {
             </table>
           </div>
         </div>
-        <p className="mt-3 text-2xs text-ink-600">USD millions. {ILLUSTRATIVE_FOOTER}</p>
+        <p className="mt-3 text-2xs text-slate-600">USD millions. {ILLUSTRATIVE_FOOTER}</p>
       </Section>
 
-      <Section title="Recommendation">
+      <Section id="recommendation" title="Recommendation">
         <div className="panel p-5">
-          <h3 className="text-lg font-semibold text-accent-300">{recommendation.structure}</h3>
-          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-ink-200">{recommendation.headline}</p>
+          <h3 className="text-lg font-semibold text-cobalt-300">{recommendation.structure}</h3>
+          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-200">{recommendation.headline}</p>
           <ul className="mt-4 space-y-3">
             {recommendation.reasons.map((r) => (
               <li key={r.title} className="grid gap-1 sm:grid-cols-[11rem_minmax(0,1fr)] sm:gap-4">
                 <span className="label pt-0.5">{r.title}</span>
-                <span className="text-xs leading-relaxed text-ink-300">{r.detail}</span>
+                <span className="text-xs leading-relaxed text-slate-300">{r.detail}</span>
               </li>
             ))}
           </ul>
-          <div className="mt-5 rounded-md border border-amber-800/50 bg-amber-950/20 p-3.5">
-            <p className="text-xs font-semibold text-amber-200">Where this conclusion could be wrong</p>
-            <p className="mt-1.5 text-xs leading-relaxed text-amber-200/80">{recommendation.caveat}</p>
+          <div className="mt-5 rounded-md border border-caution-500/40 bg-caution-700/15 p-3.5">
+            <p className="text-xs font-semibold text-caution-100">Where this conclusion could be wrong</p>
+            <p className="mt-1.5 text-xs leading-relaxed text-caution-100/85">{recommendation.caveat}</p>
           </div>
         </div>
       </Section>
 
-      <div className="mt-12">
-        <DisclosureBanner tone="warning">{HYPOTHETICAL_LONG_DISCLOSURE}</DisclosureBanner>
+        <div className="mt-12">
+          <DisclosureBanner tone="warning">{HYPOTHETICAL_LONG_DISCLOSURE}</DisclosureBanner>
+        </div>
+        </div>
       </div>
-    </div>
+    </PageShell>
   );
 }

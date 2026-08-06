@@ -26,11 +26,11 @@ export function DataTable<T>({
 }) {
   return (
     <div>
-      <div className="table-scroll">
+      <div className="table-scroll" tabIndex={0} role="region" aria-label="Scrollable table">
         <table className="w-full border-collapse text-left" style={{ minWidth }}>
           {caption ? <caption className="sr-only">{caption}</caption> : null}
           <thead>
-            <tr className="border-b border-ink-800">
+            <tr className="border-b border-white/[0.07]">
               {columns.map((c) => (
                 <th
                   key={c.key}
@@ -44,12 +44,12 @@ export function DataTable<T>({
           </thead>
           <tbody>
             {rows.map((row, i) => (
-              <tr key={rowKey(row, i)} className="border-b border-ink-800/60 align-top">
+              <tr key={rowKey(row, i)} className="border-b border-white/[0.06] align-top">
                 {columns.map((c) => (
                   <td
                     key={c.key}
                     className={`px-3 py-2.5 text-xs ${c.align === 'right' ? 'text-right' : ''} ${
-                      c.emphasis ? 'font-semibold text-ink-50' : 'text-ink-300'
+                      c.emphasis ? 'font-semibold text-ivory-50' : 'text-slate-300'
                     }`}
                   >
                     {c.render(row)}
@@ -60,7 +60,7 @@ export function DataTable<T>({
           </tbody>
         </table>
       </div>
-      {footnote ? <p className="mt-2 text-2xs leading-relaxed text-ink-600">{footnote}</p> : null}
+      {footnote ? <p className="mt-2 text-2xs leading-relaxed text-slate-600">{footnote}</p> : null}
     </div>
   );
 }

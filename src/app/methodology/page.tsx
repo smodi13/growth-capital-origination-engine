@@ -8,7 +8,7 @@ import {
   TOTAL_WEIGHT,
 } from '@/lib/scoring';
 import { PROVENANCE_LABEL } from '@/lib/types';
-import { DisclosureBanner, ExternalLink, PageHeader, Section } from '@/components/primitives';
+import { DisclosureBanner, ExternalLink, PageHeader, Section, PageShell} from '@/components/primitives';
 import { DEVELOPMENT_DISCLOSURE, DISCLOSURE, SITE } from '@/lib/site';
 
 export const metadata: Metadata = {
@@ -59,7 +59,7 @@ const PROVENANCE_RULES = [
 
 export default function MethodologyPage() {
   return (
-    <div>
+    <PageShell>
       <PageHeader
         eyebrow="Sourcing and scoring methodology"
         title="How this was built, and what it will not claim"
@@ -130,10 +130,10 @@ export default function MethodologyPage() {
         title="How sources were classified"
         description="Primary sources are first party. Corroborating sources are independent. A press release reproduction is neither, and is labelled as such."
       >
-        <div className="table-scroll">
+        <div className="table-scroll" tabIndex={0} role="region" aria-label="Scrollable table">
           <table className="w-full min-w-[48rem] border-collapse text-left">
             <thead>
-              <tr className="border-b border-ink-800">
+              <tr className="border-b border-white/[0.07]">
                 <th scope="col" className="px-3 py-2"><span className="label">Classification</span></th>
                 <th scope="col" className="px-3 py-2"><span className="label">Definition</span></th>
                 <th scope="col" className="px-3 py-2"><span className="label">Effect on scoring</span></th>
@@ -141,18 +141,18 @@ export default function MethodologyPage() {
             </thead>
             <tbody>
               {PROVENANCE_RULES.map((r) => (
-                <tr key={r.key} className="border-b border-ink-800/60 align-top">
-                  <td className="px-3 py-3 text-xs font-semibold text-ink-100">
+                <tr key={r.key} className="border-b border-white/[0.06] align-top">
+                  <td className="px-3 py-3 text-xs font-semibold text-slate-100">
                     {PROVENANCE_LABEL[r.key]}
                   </td>
-                  <td className="px-3 py-3 text-xs leading-relaxed text-ink-400">{r.definition}</td>
-                  <td className="px-3 py-3 text-xs leading-relaxed text-ink-300">{r.scoring}</td>
+                  <td className="px-3 py-3 text-xs leading-relaxed text-slate-400">{r.definition}</td>
+                  <td className="px-3 py-3 text-xs leading-relaxed text-slate-300">{r.scoring}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <p className="mt-3 max-w-3xl text-xs leading-relaxed text-ink-400">
+        <p className="mt-3 max-w-3xl text-xs leading-relaxed text-slate-400">
           Wire service and syndication copies of company announcements are recorded where they are
           the most durable link, but they are flagged as press release reproductions on the company
           page and do not count as the independent corroboration each record requires.
@@ -163,10 +163,10 @@ export default function MethodologyPage() {
         title="How the score works"
         description={`Nine factors, weights summing to ${TOTAL_WEIGHT}, coarse 0 to 5 ratings, and a capped confidence modifier.`}
       >
-        <div className="table-scroll">
+        <div className="table-scroll" tabIndex={0} role="region" aria-label="Scrollable table">
           <table className="w-full min-w-[52rem] border-collapse text-left">
             <thead>
-              <tr className="border-b border-ink-800">
+              <tr className="border-b border-white/[0.07]">
                 <th scope="col" className="px-3 py-2"><span className="label">Factor</span></th>
                 <th scope="col" className="px-3 py-2 text-right"><span className="label">Weight</span></th>
                 <th scope="col" className="px-3 py-2"><span className="label">What it measures</span></th>
@@ -175,13 +175,13 @@ export default function MethodologyPage() {
             </thead>
             <tbody>
               {FACTOR_DEFINITIONS.map((f) => (
-                <tr key={f.key} className="border-b border-ink-800/60 align-top">
-                  <td className="px-3 py-3 text-xs font-semibold text-ink-100">{f.label}</td>
-                  <td className="num px-3 py-3 text-right text-ink-200">{f.weight}%</td>
-                  <td className="px-3 py-3 text-xs leading-relaxed text-ink-400">{f.description}</td>
-                  <td className="px-3 py-3 text-xs leading-relaxed text-ink-500">
-                    <p><span className="text-ink-300">5:</span> {f.anchor5}</p>
-                    <p className="mt-1.5"><span className="text-ink-300">1:</span> {f.anchor1}</p>
+                <tr key={f.key} className="border-b border-white/[0.06] align-top">
+                  <td className="px-3 py-3 text-xs font-semibold text-slate-100">{f.label}</td>
+                  <td className="num px-3 py-3 text-right text-slate-200">{f.weight}%</td>
+                  <td className="px-3 py-3 text-xs leading-relaxed text-slate-400">{f.description}</td>
+                  <td className="px-3 py-3 text-xs leading-relaxed text-slate-500">
+                    <p><span className="text-slate-300">5:</span> {f.anchor5}</p>
+                    <p className="mt-1.5"><span className="text-slate-300">1:</span> {f.anchor1}</p>
                   </td>
                 </tr>
               ))}
@@ -191,16 +191,16 @@ export default function MethodologyPage() {
 
         <div className="mt-5 grid gap-3 lg:grid-cols-3">
           <div className="panel p-4">
-            <p className="text-sm font-semibold text-ink-100">The score is a pure function</p>
-            <p className="mt-2 text-xs leading-relaxed text-ink-400">
+            <p className="text-sm font-semibold text-slate-100">The score is a pure function</p>
+            <p className="mt-2 text-xs leading-relaxed text-slate-400">
               Nothing in the scoring engine keys off a company name, slug, or position in the list.
               Swapping two companies factor blocks swaps their scores exactly, which is asserted by
               an automated test rather than left as an assurance.
             </p>
           </div>
           <div className="panel p-4">
-            <p className="text-sm font-semibold text-ink-100">The confidence modifier is capped</p>
-            <p className="mt-2 text-xs leading-relaxed text-ink-400">
+            <p className="text-sm font-semibold text-slate-100">The confidence modifier is capped</p>
+            <p className="mt-2 text-xs leading-relaxed text-slate-400">
               High confidence adds {CONFIDENCE_MODIFIER_CAP} points, limited confidence subtracts{' '}
               {CONFIDENCE_MODIFIER_CAP}, and moderate adds nothing. The cap exists so a well
               documented weak company cannot outrank a clearly stronger one purely because more
@@ -208,8 +208,8 @@ export default function MethodologyPage() {
             </p>
           </div>
           <div className="panel p-4">
-            <p className="text-sm font-semibold text-ink-100">Unsupported evidence earns nothing</p>
-            <p className="mt-2 text-xs leading-relaxed text-ink-400">
+            <p className="text-sm font-semibold text-slate-100">Unsupported evidence earns nothing</p>
+            <p className="mt-2 text-xs leading-relaxed text-slate-400">
               Where a factor rests on evidence classified as not sufficiently supported, the engine
               forces its effective rating to zero. Several companies here carry a zero on capital
               efficiency or growth quality for exactly that reason, and the company page marks it as
@@ -352,11 +352,11 @@ export default function MethodologyPage() {
 
       <Section title="How AI-assisted development tools were used">
         <div className="panel p-5">
-          <p className="text-sm leading-relaxed text-ink-200">{DEVELOPMENT_DISCLOSURE}</p>
-          <div className="mt-4 grid gap-3 border-t border-ink-800 pt-4 lg:grid-cols-2">
+          <p className="text-sm leading-relaxed text-slate-200">{DEVELOPMENT_DISCLOSURE}</p>
+          <div className="mt-4 grid gap-3 border-t border-white/[0.07] pt-4 lg:grid-cols-2">
             <div>
               <p className="label">What the tools did</p>
-              <ul className="mt-2 space-y-1.5 text-xs leading-relaxed text-ink-400">
+              <ul className="mt-2 space-y-1.5 text-xs leading-relaxed text-slate-400">
                 <li>Wrote and refactored application code, components, and the test suite</li>
                 <li>Ran public web searches and retrieved pages during the research phase</li>
                 <li>Organised research findings into the structured record format</li>
@@ -365,7 +365,7 @@ export default function MethodologyPage() {
             </div>
             <div>
               <p className="label">What they did not do</p>
-              <ul className="mt-2 space-y-1.5 text-xs leading-relaxed text-ink-400">
+              <ul className="mt-2 space-y-1.5 text-xs leading-relaxed text-slate-400">
                 <li>Choose which companies enter or leave the universe</li>
                 <li>Set the factors, weights, rating anchors, or evidence caps</li>
                 <li>Decide any capital solution fit rating or the recommended structure</li>
@@ -373,7 +373,7 @@ export default function MethodologyPage() {
               </ul>
             </div>
           </div>
-          <p className="mt-4 border-t border-ink-800 pt-4 text-xs leading-relaxed text-ink-500">
+          <p className="mt-4 border-t border-white/[0.07] pt-4 text-xs leading-relaxed text-slate-500">
             Every company record and material claim was reviewed against dated public sources. Where
             a widely repeated claim could not be traced to a primary source, the record says so
             rather than adopting it, which is visible in the Monte Carlo, Workato, and Sigma
@@ -383,7 +383,7 @@ export default function MethodologyPage() {
       </Section>
 
       <Section title="Repository">
-        <p className="text-sm text-ink-300">
+        <p className="text-sm text-slate-300">
           The complete source, including the scoring engine, every company record, and the document
           generation scripts, is public at{' '}
           <ExternalLink href={SITE.github}>{SITE.github}</ExternalLink>.
@@ -393,6 +393,6 @@ export default function MethodologyPage() {
       <div className="mt-12">
         <DisclosureBanner>{DISCLOSURE}</DisclosureBanner>
       </div>
-    </div>
+    </PageShell>
   );
 }

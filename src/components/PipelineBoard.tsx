@@ -43,6 +43,9 @@ export interface PipelineSeed {
   defaultPriority: Priority;
   defaultNextAction: string;
   capitalView: string;
+  readiness: string;
+  outstandingMetrics: number;
+  qualificationCompleteness: number;
 }
 
 interface PipelineState {
@@ -55,14 +58,14 @@ interface PipelineState {
 const STORAGE_KEY = 'gcoe.pipeline.v1';
 
 const STATUS_TONE: Record<Status, string> = {
-  Researching: 'border-ink-700 bg-ink-850 text-ink-300',
-  'Qualified for outreach': 'border-accent-600/50 bg-accent-600/15 text-accent-300',
-  'Outreach drafted': 'border-sky-800/50 bg-sky-950/40 text-sky-300',
-  Contacted: 'border-indigo-800/50 bg-indigo-950/40 text-indigo-300',
-  'Initial discussion': 'border-violet-800/50 bg-violet-950/40 text-violet-300',
-  'Preliminary diligence': 'border-emerald-800/50 bg-emerald-950/40 text-emerald-300',
-  Passed: 'border-ink-800 bg-ink-900 text-ink-500',
-  'Priority follow-up': 'border-amber-800/50 bg-amber-950/40 text-amber-300',
+  Researching: 'border-white/10 bg-graphite-800 text-slate-300',
+  'Qualified for outreach': 'border-cobalt-600/45 bg-cobalt-700/25 text-cobalt-300',
+  'Outreach drafted': 'border-cobalt-500/40 bg-cobalt-700/22 text-cobalt-200',
+  Contacted: 'border-teal-500/40 bg-teal-800/25 text-teal-200',
+  'Initial discussion': 'border-teal-600/40 bg-teal-900/35 text-teal-200',
+  'Preliminary diligence': 'border-positive-500/40 bg-positive-700/25 text-positive-200',
+  Passed: 'border-white/[0.07] bg-graphite-900 text-slate-500',
+  'Priority follow-up': 'border-caution-500/40 bg-caution-700/22 text-caution-200',
 };
 
 function csvEscape(v: string): string {
@@ -164,6 +167,7 @@ export function PipelineBoard({ seeds }: { seeds: PipelineSeed[] }) {
     return merged;
   }, [initial, raw]);
 
+  const [view, setView] = useState<'table' | 'kanban'>('table');
   const [statusFilter, setStatusFilter] = useState<'All' | Status>('All');
   const [priorityFilter, setPriorityFilter] = useState<'All' | Priority>('All');
   const [sortKey, setSortKey] = useState<'score' | 'name' | 'priority'>('score');
@@ -271,7 +275,7 @@ export function PipelineBoard({ seeds }: { seeds: PipelineSeed[] }) {
             className={`inline-flex items-center gap-1.5 rounded border px-2 py-1 text-2xs font-medium ${STATUS_TONE[s]}`}
           >
             {s}
-            <span className="num opacity-70">{counts[s] ?? 0}</span>
+            <span className="num">{counts[s] ?? 0}</span>
           </span>
         ))}
       </div>
@@ -283,7 +287,7 @@ export function PipelineBoard({ seeds }: { seeds: PipelineSeed[] }) {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as 'All' | Status)}
-            className="mt-1 w-full rounded-md border border-ink-700 bg-ink-900 px-3 py-2 text-xs text-ink-100"
+            className="mt-1 w-full rounded-md border border-white/10 bg-graphite-900 px-3 py-2 text-xs text-slate-100"
           >
             <option>All</option>
             {STATUSES.map((s) => (
@@ -297,7 +301,7 @@ export function PipelineBoard({ seeds }: { seeds: PipelineSeed[] }) {
           <select
             value={priorityFilter}
             onChange={(e) => setPriorityFilter(e.target.value as 'All' | Priority)}
-            className="mt-1 w-full rounded-md border border-ink-700 bg-ink-900 px-3 py-2 text-xs text-ink-100"
+            className="mt-1 w-full rounded-md border border-white/10 bg-graphite-900 px-3 py-2 text-xs text-slate-100"
           >
             <option>All</option>
             {PRIORITIES.map((s) => (
@@ -311,7 +315,7 @@ export function PipelineBoard({ seeds }: { seeds: PipelineSeed[] }) {
           <select
             value={sortKey}
             onChange={(e) => setSortKey(e.target.value as 'score' | 'name' | 'priority')}
-            className="mt-1 w-full rounded-md border border-ink-700 bg-ink-900 px-3 py-2 text-xs text-ink-100"
+            className="mt-1 w-full rounded-md border border-white/10 bg-graphite-900 px-3 py-2 text-xs text-slate-100"
           >
             <option value="score">Origination score</option>
             <option value="priority">Outreach priority</option>
@@ -323,27 +327,109 @@ export function PipelineBoard({ seeds }: { seeds: PipelineSeed[] }) {
           <button
             type="button"
             onClick={exportCsv}
-            className="flex-1 rounded-md bg-accent-500 px-3 py-2 text-xs font-semibold text-ink-950 hover:bg-accent-400"
+            className="flex-1 rounded-md bg-cobalt-500 px-3 py-2 text-xs font-semibold text-white hover:bg-cobalt-400"
           >
             Export CSV
           </button>
           <button
             type="button"
             onClick={reset}
-            className="rounded-md border border-ink-700 px-3 py-2 text-xs font-semibold text-ink-300 hover:bg-ink-900"
+            className="rounded-md border border-white/10 px-3 py-2 text-xs font-semibold text-slate-300 hover:bg-graphite-900"
           >
             Reset
           </button>
         </div>
       </div>
 
-      <p className="mt-3 text-2xs text-ink-500">
-        Showing {rows.length} of {seeds.length}. Changes persist in this browser only, using
-        localStorage. There is no database, no account, and nothing is transmitted anywhere.
-      </p>
+      <div className="mt-3.5 flex flex-wrap items-center justify-between gap-3">
+        <p className="text-2xs text-slate-500">
+          Showing <span className="num text-slate-300">{rows.length}</span> of {seeds.length}.
+          Changes persist in this browser only, using localStorage. There is no database, no
+          account, and nothing is transmitted anywhere.
+        </p>
+        <div
+          className="inline-flex shrink-0 rounded-md border border-white/10 p-0.5"
+          role="group"
+          aria-label="Pipeline view"
+        >
+          {(['table', 'kanban'] as const).map((v) => (
+            <button
+              key={v}
+              type="button"
+              onClick={() => setView(v)}
+              aria-pressed={view === v}
+              className={`rounded px-2.5 py-1 text-2xs font-medium capitalize transition-colors ${
+                view === v ? 'bg-white/[0.08] text-slate-100' : 'text-slate-500 hover:text-slate-300'
+              }`}
+            >
+              {v}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Kanban */}
+      {view === 'kanban' ? (
+        <div className="table-scroll mt-4" tabIndex={0} role="region" aria-label="Scrollable table">
+          <div className="flex min-w-[62rem] gap-3">
+            {STATUSES.map((status) => {
+              const column = rows.filter((s) => state[s.slug].status === status);
+              return (
+                <section key={status} className="w-[15rem] shrink-0">
+                  <div
+                    className={`flex items-center justify-between gap-2 rounded-t-lg border px-3 py-2 ${STATUS_TONE[status]}`}
+                  >
+                    <span className="text-2xs font-semibold">{status}</span>
+                    <span className="num text-2xs">{column.length}</span>
+                  </div>
+                  <div className="min-h-[6rem] space-y-2 rounded-b-lg border border-t-0 border-white/[0.07] bg-graphite-900/40 p-2">
+                    {column.map((s) => (
+                      <article key={s.slug} className="panel p-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <Link
+                            href={`/companies/${s.slug}/`}
+                            className="truncate text-xs font-semibold text-ivory-50 hover:text-cobalt-200"
+                          >
+                            {s.name}
+                          </Link>
+                          <span className="num shrink-0 text-2xs text-slate-400">
+                            {s.score.toFixed(1)}
+                          </span>
+                        </div>
+                        <div className="mt-2 flex flex-wrap gap-1">
+                          <FreshnessBadge value={s.freshness} />
+                          <span className="chip border-white/10 bg-white/[0.04] text-slate-500">
+                            {s.outstandingMetrics} gaps
+                          </span>
+                        </div>
+                        <div className="mt-2">
+                          <div className="h-1 w-full overflow-hidden rounded-full bg-navy-800">
+                            <div
+                              className="h-full rounded-full bg-cobalt-500/80"
+                              style={{ width: `${s.qualificationCompleteness * 100}%` }}
+                            />
+                          </div>
+                          <p className="mt-1 text-3xs text-slate-600">
+                            {Math.round(s.qualificationCompleteness * 100)}% qualified
+                          </p>
+                        </div>
+                      </article>
+                    ))}
+                    {column.length === 0 ? (
+                      <p className="px-1 py-4 text-center text-3xs text-slate-600">
+                        No records in this stage
+                      </p>
+                    ) : null}
+                  </div>
+                </section>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
 
       {/* Rows */}
-      <ul className="mt-4 space-y-2">
+      <ul className={`mt-4 space-y-2 ${view === 'kanban' ? 'hidden' : ''}`}>
         {rows.map((s) => {
           const st = state[s.slug];
           const isOpen = expanded === s.slug;
@@ -352,29 +438,31 @@ export function PipelineBoard({ seeds }: { seeds: PipelineSeed[] }) {
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Link href={`/companies/${s.slug}/`} className="text-sm font-semibold text-ink-50 hover:text-accent-300">
+                    <Link href={`/companies/${s.slug}/`} className="text-sm font-semibold text-ivory-50 hover:text-cobalt-300">
                       {s.name}
                     </Link>
-                    <span className="num text-ink-500">{s.score.toFixed(1)}</span>
+                    <span className="num text-slate-500">{s.score.toFixed(1)}</span>
                     <span className={`rounded border px-1.5 py-0.5 text-2xs font-medium ${STATUS_TONE[st.status]}`}>
                       {st.status}
                     </span>
                   </div>
-                  <p className="mt-1 text-2xs text-ink-500">
-                    {s.sector} <span className="text-ink-700">/</span> {s.stage}
+                  <p className="mt-1 text-2xs text-slate-500">
+                    {s.sector} <span className="text-slate-600">/</span> {s.stage}
                   </p>
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     <FreshnessBadge value={s.freshness} />
                     <ConfidenceBadge value={s.confidence} />
                     <Pill>{s.channel}</Pill>
                     <Pill>Signal {s.signalDate}</Pill>
+                    <Pill>{s.readiness}</Pill>
+                    <Pill>{s.outstandingMetrics} metrics outstanding</Pill>
                   </div>
                 </div>
 
                 <button
                   type="button"
                   onClick={() => setExpanded(isOpen ? null : s.slug)}
-                  className="shrink-0 rounded-md border border-ink-700 px-3 py-1.5 text-2xs font-semibold text-ink-300 hover:bg-ink-850"
+                  className="shrink-0 rounded-md border border-white/10 px-3 py-1.5 text-2xs font-semibold text-slate-300 hover:bg-graphite-800"
                   aria-expanded={isOpen}
                 >
                   {isOpen ? 'Close' : 'Edit'}
@@ -382,13 +470,13 @@ export function PipelineBoard({ seeds }: { seeds: PipelineSeed[] }) {
               </div>
 
               {isOpen ? (
-                <div className="mt-4 grid gap-3 border-t border-ink-800 pt-4 lg:grid-cols-2">
+                <div className="mt-4 grid gap-3 border-t border-white/[0.07] pt-4 lg:grid-cols-2">
                   <label className="block">
                     <span className="label">Status</span>
                     <select
                       value={st.status}
                       onChange={(e) => update(s.slug, { status: e.target.value as Status })}
-                      className="mt-1 w-full rounded-md border border-ink-700 bg-ink-950 px-3 py-2 text-xs text-ink-100"
+                      className="mt-1 w-full rounded-md border border-white/10 bg-navy-950 px-3 py-2 text-xs text-slate-100"
                     >
                       {STATUSES.map((v) => (
                         <option key={v}>{v}</option>
@@ -401,7 +489,7 @@ export function PipelineBoard({ seeds }: { seeds: PipelineSeed[] }) {
                     <select
                       value={st.priority}
                       onChange={(e) => update(s.slug, { priority: e.target.value as Priority })}
-                      className="mt-1 w-full rounded-md border border-ink-700 bg-ink-950 px-3 py-2 text-xs text-ink-100"
+                      className="mt-1 w-full rounded-md border border-white/10 bg-navy-950 px-3 py-2 text-xs text-slate-100"
                     >
                       {PRIORITIES.map((v) => (
                         <option key={v}>{v}</option>
@@ -415,7 +503,7 @@ export function PipelineBoard({ seeds }: { seeds: PipelineSeed[] }) {
                       type="text"
                       value={st.nextAction}
                       onChange={(e) => update(s.slug, { nextAction: e.target.value })}
-                      className="mt-1 w-full rounded-md border border-ink-700 bg-ink-950 px-3 py-2 text-xs text-ink-100"
+                      className="mt-1 w-full rounded-md border border-white/10 bg-navy-950 px-3 py-2 text-xs text-slate-100"
                     />
                   </label>
 
@@ -426,18 +514,18 @@ export function PipelineBoard({ seeds }: { seeds: PipelineSeed[] }) {
                       onChange={(e) => update(s.slug, { notes: e.target.value })}
                       rows={3}
                       placeholder="Working notes stay in this browser only."
-                      className="mt-1 w-full rounded-md border border-ink-700 bg-ink-950 px-3 py-2 text-xs text-ink-100 placeholder:text-ink-600"
+                      className="mt-1 w-full rounded-md border border-white/10 bg-navy-950 px-3 py-2 text-xs text-slate-100 placeholder:text-slate-600"
                     />
                   </label>
                 </div>
               ) : (
-                <div className="mt-3 grid gap-2 border-t border-ink-800 pt-3 sm:grid-cols-[7rem_minmax(0,1fr)]">
+                <div className="mt-3 grid gap-2 border-t border-white/[0.07] pt-3 sm:grid-cols-[7rem_minmax(0,1fr)]">
                   <span className="label pt-0.5">Next action</span>
-                  <span className="text-xs leading-relaxed text-ink-300">{st.nextAction}</span>
+                  <span className="text-xs leading-relaxed text-slate-300">{st.nextAction}</span>
                   {st.notes ? (
                     <>
                       <span className="label pt-0.5">Notes</span>
-                      <span className="whitespace-pre-wrap text-xs leading-relaxed text-ink-400">
+                      <span className="whitespace-pre-wrap text-xs leading-relaxed text-slate-400">
                         {st.notes}
                       </span>
                     </>
@@ -450,7 +538,7 @@ export function PipelineBoard({ seeds }: { seeds: PipelineSeed[] }) {
       </ul>
 
       {rows.length === 0 ? (
-        <p className="mt-6 text-sm text-ink-500">No records match the current filters.</p>
+        <p className="mt-6 text-sm text-slate-500">No records match the current filters.</p>
       ) : null}
     </div>
   );

@@ -19,7 +19,7 @@ This is an independent work sample built by Sahil Modi. It is not affiliated wit
 
 The project demonstrates a complete growth-capital origination workflow, end to end:
 
-1. **Source.** 22 real, privately held, independently operating B2B enterprise software companies, each entering through a specific dated public signal rather than through a ranking of well-known names.
+1. **Source.** 32 real, privately held, independently operating B2B enterprise software companies, each entering through a specific dated public signal rather than through a ranking of well-known names. The universe splits into 22 benchmark growth companies that calibrate the underwriting reference points and 10 emerging origination targets where a differentiated conversation is more plausible.
 2. **Qualify.** Every material claim is classified by provenance before it is used. A transparent 0 to 100 Origination Priority Score is built from nine weighted factors with visible evidence, sources, and reasoning.
 3. **Contact.** Executive outreach drafted against each company's actual product, financing history, and publicly visible capital position, with three qualification questions and a defined next diligence step.
 4. **Underwrite.** A hypothetical SaaS company modelled end to end across growth equity, private credit, and blended structures, delivered as a live Excel model and a written investment memorandum.
@@ -39,9 +39,9 @@ Two records are retained deliberately as tests of that standard. Monte Carlo is 
 | Route | Purpose |
 | --- | --- |
 | `/` | Overview dashboard: workflow, top six origination priorities, sector, stage, freshness and capital-solution distributions, downloads |
-| `/universe` | The full sourcing universe as a sortable, filterable table, plus researched-and-excluded companies with evidence |
-| `/companies/[slug]` | Full company record: snapshot, private-status verification, origination signal, evidence with provenance, full score breakdown, three capital-fit assessments, risks, outreach, missing information, sources |
-| `/pipeline` | Browser-local origination pipeline with statuses, priorities, notes, next actions, filtering, sorting and CSV export |
+| `/universe` | Origination workstation: saved views, search with highlighted matches, sticky headers, column controls, compact and expanded density, mobile cards, plus the emerging targets section and the exclusion register |
+| `/companies/[slug]` | Full company record across eleven sections with sticky in-page navigation: investment snapshot, sourcing signal, private-status verification, evidence with provenance, score breakdown, three capital-fit assessments, underwriting readiness, risks, outreach, missing information, sources |
+| `/pipeline` | Browser-local origination pipeline in table or kanban view, with statuses, priorities, notes, next actions, readiness indicators, filtering, sorting and CSV export |
 | `/underwriting` | Hypothetical SaaS underwriting case: assumptions, ARR bridge, operating forecast, SaaS metrics, downside case, recommendation |
 | `/structures` | Growth equity, private credit and blended capital compared on the same company, with debt schedules, returns and four sensitivities |
 | `/compare` | Side-by-side comparison of up to four real private companies across 20 attributes |
@@ -58,18 +58,25 @@ src/
   app/                      Next.js App Router pages, one directory per route
   components/               Presentational and interactive components
     NavBar.tsx              Responsive navigation
-    UniverseTable.tsx       Sortable and filterable universe table
-    PipelineBoard.tsx       localStorage pipeline with CSV export
+    UniverseTable.tsx       Origination workstation: presets, search, columns
+    PipelineBoard.tsx       localStorage pipeline, table and kanban views
     CompareTool.tsx         Up-to-four company comparison
-    primitives.tsx          Badges, tables, panels, disclosure banners
+    ReadinessPanel.tsx      Underwriting readiness, derived from evidence
+    SectionNav.tsx          Sticky in-page navigation for long research pages
+    CapitalFlowBackground.tsx  Generated SVG hero background, no assets
+    motion.tsx              Reveal, count-up, score bar, crossfade, collapse
+    primitives.tsx          Badges, panels, disclosure banners, tooltips
   data/
-    companies.*.ts          Company records, split by sector cluster
-    companies.ts            Universe aggregation and exclusion register
+    companies.*.ts          Benchmark records, split by sector cluster
+    companies.emerging.ts   Emerging origination targets
+    companies.ts            Universe aggregation, classification, exclusions
     hypothetical.ts         Northstar Workflow Systems model, isolated
     helpers.ts              Claim, rating and source constructors
   lib/
     types.ts                Domain types with the disclosure sentinel
     scoring.ts              Origination scoring engine and debt-fit caps
+    readiness.ts            Evidence-derived underwriting readiness
+    motion.ts               Central motion config and reduced-motion handling
     derived.ts              Distributions and formatting
     site.ts                 Site constants and disclosure strings
 scripts/
@@ -87,7 +94,7 @@ public/downloads/           The two generated artefacts
 
 **What the data contains**
 
-- 22 real, privately held, independently operating B2B enterprise software companies, verified as at 5 August 2026.
+- 32 real, privately held, independently operating B2B enterprise software companies verified against dated public sources: 22 benchmark growth companies and 10 emerging origination targets, held to the same standard.
 - Dated, linked sources for every company, each classified as primary or corroborating, with press-release reproductions flagged.
 - A provenance classification on every material claim.
 - An explicit enumeration on every record of what public sources do not disclose.
@@ -150,6 +157,34 @@ Three constraints are enforced in code rather than left to discipline:
 
 ---
 
+## Underwriting readiness
+
+Every company carries a readiness status derived from its evidence, never from its identity:
+
+`Insufficient public evidence` → `Outreach worthy` → `Preliminary qualification possible` → `Underwriting data required` → `Potentially underwritable`
+
+The derivation distinguishes a claim that *mentions* a metric from one that *carries* it. A record can state that no retention figure is published, which is useful context and not a disclosed number. Only claims flagged as quantified, backed by provenance that can support a positive conclusion, count.
+
+Each company page shows four panels: what the public record already supports, the thirteen metrics that must come from management, the twelve standard data room materials, and exactly what evidence would move each rating. An automated test asserts that swapping two companies' evidence swaps their readiness.
+
+## Design system
+
+| Layer | Choice |
+| --- | --- |
+| Grounds | Deep navy for chrome and hero, graphite for panel surfaces, warm ivory for sustained reading |
+| Accents | Muted cobalt for interactive and structural emphasis, restrained teal for analytical highlights |
+| State | Muted green, restrained amber and red, always paired with a label so nothing is carried by colour alone |
+| Type | Editorial serif display for major headlines, system sans for interface copy, monospaced tabular numerals for every financial value |
+| Motion | Central config in `src/lib/motion.ts`; entrances 320 to 620ms, stagger at most 85ms, hover travel 2px |
+
+No font is fetched. The display stack resolves to families already installed on the operating system, so the site makes zero network requests of any kind.
+
+The hero background is a generated SVG lattice of capital-flow paths with low-opacity nodes travelling along them, layered over CSS radial lighting and a CSS noise texture. There is no video, image, or remote animation file. It goes static under `prefers-reduced-motion`, on viewports below 768px, and when the tab is hidden.
+
+Motion is optional rather than load bearing. `useReducedMotion` returns true during server rendering, so the prerendered HTML is always the finished state: a reader with animation disabled sees identical content immediately, and a reader with JavaScript disabled sees the whole page.
+
+---
+
 ## Underwriting model
 
 `Enterprise_Software_Growth_Capital_Model.xlsx` underwrites **Northstar Workflow Systems**, a hypothetical B2B enterprise SaaS company with USD 12 million beginning ARR, 30% growth, 110% net revenue retention, 88% gross retention, 78% gross margin, negative EBITDA, and a requirement for approximately USD 20 million of growth capital.
@@ -192,14 +227,17 @@ python3 scripts/build_memo.py     # PDF memorandum
 
 ```bash
 npm run build          # Required first: several tests inspect out/
-npm test               # Vitest
+npm test               # Vitest, 72 tests
 ```
 
-The suite covers 34 numbered checks across three files:
+Accessibility and performance are verified with axe-core and Lighthouse against the built output at four breakpoints and in both motion modes.
+
+The suite covers 54 numbered checks across four files:
 
 - `tests/integrity.test.ts` (1 to 19) research standards, scoring mechanics, record completeness, outreach tone
 - `tests/artifacts.test.ts` (20 to 24) Excel sheets and formula count, PDF sections and disclosures, download links, repository links
 - `tests/security.test.ts` (25 to 34) firm names, em dashes, API routes, fetch calls, environment variables, credential patterns, link safety, static rendering, authentication, third-party origins
+- `tests/redesign.test.ts` (1 to 20 of the design pass) reduced-motion handling, interaction blocking, keyboard access, navigation at both sizes, background dependencies, third-party requests, console errors, layout overflow, card data, structure-switch integrity, emerging-target verification, classification visibility, evidence-derived readiness, data requirements, pipeline defaults, artefact hashes, link safety, firm names, em dashes, credential absence
 
 The Excel workbook and PDF are parsed directly, including a ZIP reader and an ASCII85 plus Flate PDF stream decoder, rather than trusted through a manifest a failed build could still write.
 
@@ -217,7 +255,9 @@ The Excel workbook and PDF are parsed directly, including a ZIP reader and an AS
 | No analytics or telemetry | No tracking script on any page; asserted against both source and build output |
 | No external resources | Build output loads no script, style, font, or image from another origin; asserted by test 34 |
 
-Runtime dependencies are exactly `next`, `react` and `react-dom`.
+Runtime dependencies are exactly `next`, `react` and `react-dom`. The motion system is hand written against the platform: `useSyncExternalStore` for media queries and browser storage, `IntersectionObserver` for scroll reveals, and declarative SVG for the background. No animation library is installed.
+
+**Measured results:** Lighthouse performance 96 to 99 and accessibility 100 on desktop, cumulative layout shift 0, total blocking time 0ms, and zero axe-core violations across every route in both normal and reduced motion.
 
 ## Static deployment
 

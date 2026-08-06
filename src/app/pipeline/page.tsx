@@ -1,7 +1,12 @@
 import type { Metadata } from 'next';
 import { companies } from '@/data/companies';
 import { scoreOf } from '@/lib/scoring';
-import { DisclosureBanner, PageHeader, Section } from '@/components/primitives';
+import {
+  outstandingMetricCount,
+  qualificationCompleteness,
+  readinessOf,
+} from '@/lib/readiness';
+import { DisclosureBanner, PageHeader, Section, PageShell} from '@/components/primitives';
 import { PipelineBoard, STATUSES, type PipelineSeed } from '@/components/PipelineBoard';
 import { DISCLOSURE, PIPELINE_DISCLOSURE } from '@/lib/site';
 
@@ -32,11 +37,14 @@ const seeds: PipelineSeed[] = companies.map((c) => ({
   defaultPriority: c.outreachPriority,
   defaultNextAction: c.nextDiligenceStep,
   capitalView: c.preliminaryCapitalView,
+  readiness: readinessOf(c),
+  outstandingMetrics: outstandingMetricCount(c),
+  qualificationCompleteness: qualificationCompleteness(c),
 }));
 
 export default function PipelinePage() {
   return (
-    <div>
+    <PageShell>
       <PageHeader
         eyebrow="Origination pipeline"
         title="Workflow demonstration"
@@ -55,10 +63,10 @@ export default function PipelinePage() {
       </Section>
 
       <Section title="Status definitions">
-        <div className="table-scroll">
+        <div className="table-scroll" tabIndex={0} role="region" aria-label="Scrollable table">
           <table className="w-full min-w-[42rem] border-collapse text-left">
             <thead>
-              <tr className="border-b border-ink-800">
+              <tr className="border-b border-white/[0.07]">
                 <th scope="col" className="px-3 py-2"><span className="label">Status</span></th>
                 <th scope="col" className="px-3 py-2"><span className="label">Meaning</span></th>
                 <th scope="col" className="px-3 py-2"><span className="label">Used as a default</span></th>
@@ -79,14 +87,14 @@ export default function PipelinePage() {
               ).map(([status, meaning]) => {
                 const isDefault = status === 'Researching' || status === 'Qualified for outreach';
                 return (
-                  <tr key={status} className="border-b border-ink-800/60 align-top">
-                    <td className="px-3 py-2.5 text-xs font-semibold text-ink-100">{status}</td>
-                    <td className="px-3 py-2.5 text-xs leading-relaxed text-ink-400">{meaning}</td>
+                  <tr key={status} className="border-b border-white/[0.06] align-top">
+                    <td className="px-3 py-2.5 text-xs font-semibold text-slate-100">{status}</td>
+                    <td className="px-3 py-2.5 text-xs leading-relaxed text-slate-400">{meaning}</td>
                     <td className="px-3 py-2.5 text-xs">
                       {isDefault ? (
-                        <span className="text-accent-300">Yes</span>
+                        <span className="text-cobalt-300">Yes</span>
                       ) : (
-                        <span className="text-ink-600">No, available to the user only</span>
+                        <span className="text-slate-600">No, available to the user only</span>
                       )}
                     </td>
                   </tr>
@@ -95,7 +103,7 @@ export default function PipelinePage() {
             </tbody>
           </table>
         </div>
-        <p className="mt-2 text-2xs text-ink-600">
+        <p className="mt-2 text-2xs text-slate-600">
           {STATUSES.length} statuses in total.
         </p>
       </Section>
@@ -104,6 +112,6 @@ export default function PipelinePage() {
         <DisclosureBanner tone="warning">{PIPELINE_DISCLOSURE}</DisclosureBanner>
         <DisclosureBanner>{DISCLOSURE}</DisclosureBanner>
       </div>
-    </div>
+    </PageShell>
   );
 }

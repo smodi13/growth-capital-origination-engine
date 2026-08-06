@@ -57,14 +57,14 @@ const ROWS: RowDef[] = [
     render: (r) => (
       <span className="inline-flex flex-col items-start gap-1">
         <FreshnessBadge value={r.freshness} />
-        <span className="num text-ink-600">{r.signalDate}</span>
+        <span className="num text-slate-600">{r.signalDate}</span>
       </span>
     ),
   },
   { label: 'Data confidence', render: (r) => <ConfidenceBadge value={r.confidence} /> },
   {
     label: 'Origination score',
-    render: (r) => <span className="num text-base font-semibold text-ink-50">{r.score.toFixed(1)}</span>,
+    render: (r) => <span className="num text-base font-semibold text-ivory-50">{r.score.toFixed(1)}</span>,
   },
   { label: 'Growth equity fit', render: (r) => <span className="num">{r.equityFit} / 5</span> },
   { label: 'Private credit fit', render: (r) => <span className="num">{r.debtFit} / 5</span> },
@@ -96,7 +96,7 @@ export function CompareTool({ records }: { records: CompareRecord[] }) {
       <div className="panel p-4">
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <p className="label">Select up to {MAX} companies</p>
-          <p className="text-2xs text-ink-500">
+          <p className="text-2xs text-slate-500">
             {selected.length} of {MAX} selected
           </p>
         </div>
@@ -113,10 +113,10 @@ export function CompareTool({ records }: { records: CompareRecord[] }) {
                 aria-pressed={isOn}
                 className={`rounded border px-2.5 py-1.5 text-2xs font-medium transition-colors ${
                   isOn
-                    ? 'border-accent-500 bg-accent-600/20 text-accent-200'
+                    ? 'border-cobalt-500 bg-cobalt-600/20 text-cobalt-200'
                     : isFull
-                      ? 'cursor-not-allowed border-ink-800 bg-ink-900/50 text-ink-700'
-                      : 'border-ink-700 bg-ink-900 text-ink-300 hover:border-ink-600 hover:text-ink-100'
+                      ? 'cursor-not-allowed border-white/[0.07] bg-graphite-900/50 text-slate-600'
+                      : 'border-white/10 bg-graphite-900 text-slate-300 hover:border-white/15 hover:text-slate-100'
                 }`}
               >
                 {r.name}
@@ -128,7 +128,7 @@ export function CompareTool({ records }: { records: CompareRecord[] }) {
           <button
             type="button"
             onClick={() => setSelected([])}
-            className="mt-3 text-2xs text-ink-500 underline underline-offset-2 hover:text-ink-300"
+            className="mt-3 text-2xs text-slate-500 underline underline-offset-2 hover:text-slate-300"
           >
             Clear selection
           </button>
@@ -136,23 +136,23 @@ export function CompareTool({ records }: { records: CompareRecord[] }) {
       </div>
 
       {chosen.length === 0 ? (
-        <p className="mt-6 text-sm text-ink-500">
+        <p className="mt-6 text-sm text-slate-500">
           Select at least one company above to build a comparison.
         </p>
       ) : (
-        <div className="table-scroll mt-5">
+        <div className="table-scroll mt-5" tabIndex={0} role="region" aria-label="Scrollable table">
           <table
             className="w-full border-collapse text-left"
             style={{ minWidth: `${14 + chosen.length * 16}rem` }}
           >
             <thead>
-              <tr className="border-b border-ink-800">
+              <tr className="border-b border-white/[0.07]">
                 <th scope="col" className="w-56 px-3 py-3 align-bottom">
                   <span className="label">Attribute</span>
                 </th>
                 {chosen.map((r) => (
                   <th key={r.slug} scope="col" className="px-3 py-3 align-bottom">
-                    <Link href={`/companies/${r.slug}/`} className="text-sm font-semibold text-ink-50 hover:text-accent-300">
+                    <Link href={`/companies/${r.slug}/`} className="text-sm font-semibold text-ivory-50 hover:text-cobalt-300">
                       {r.name}
                     </Link>
                   </th>
@@ -161,14 +161,14 @@ export function CompareTool({ records }: { records: CompareRecord[] }) {
             </thead>
             <tbody>
               {ROWS.map((row) => (
-                <tr key={row.label} className="border-b border-ink-800/60 align-top">
+                <tr key={row.label} className="border-b border-white/[0.06] align-top">
                   <th scope="row" className="px-3 py-3 text-left">
                     <span className="label">{row.label}</span>
                   </th>
                   {chosen.map((r) => (
                     <td
                       key={r.slug}
-                      className={`px-3 py-3 text-xs text-ink-300 ${row.wrap ? 'leading-relaxed' : ''}`}
+                      className={`px-3 py-3 text-xs text-slate-300 ${row.wrap ? 'leading-relaxed' : ''}`}
                     >
                       {row.render(r)}
                     </td>

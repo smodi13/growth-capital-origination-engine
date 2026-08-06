@@ -1,8 +1,8 @@
-import type { CompanyRecord } from '@/lib/types';
+import type { CompanyInput } from '@/lib/types';
 import { NOT_DISCLOSED } from '@/lib/types';
 import { claim, rate, src, undisclosed, REVIEW_DATE } from './helpers';
 
-export const verticalIndustryCompanies: CompanyRecord[] = [
+export const verticalIndustryCompanies: CompanyInput[] = [
   /* ---------------------------------------------------------------------- */
   {
     slug: 'clio',

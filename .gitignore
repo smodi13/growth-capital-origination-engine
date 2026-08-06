@@ -51,3 +51,6 @@ __pycache__/
 # Added by the Vercel CLI. The negation for .env.example is above.
 .env*
 !.env.example
+
+# Local design audit scratch output
+.design/
