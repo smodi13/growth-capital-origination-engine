@@ -1,0 +1,10 @@
+# Source material that does not need to reach the build machine.
+scripts/
+tests/
+node_modules/
+.next/
+out/
+coverage/
+.DS_Store
+*.md
+!README.md

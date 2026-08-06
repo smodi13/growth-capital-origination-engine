@@ -1,0 +1,49 @@
+# Dependencies
+/node_modules
+/.pnp
+.pnp.*
+
+# Next.js build output
+/.next/
+/out/
+next-env.d.ts
+*.tsbuildinfo
+
+# Vercel
+.vercel
+
+# Environment files. This project requires no environment variables.
+# Only .env.example (comments, no assignments) is tracked.
+.env
+.env.*
+!.env.example
+
+# Credentials of any kind must never be tracked
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+*credentials*.json
+*secret*.json
+.npmrc
+.netrc
+
+# Test and coverage output
+/coverage
+/test-results
+
+# OS and editor noise
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Python build environment for document generation
+__pycache__/
+*.pyc
+.venv/
+
+# Playwright MCP scratch output
+.playwright-mcp/
