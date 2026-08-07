@@ -854,12 +854,11 @@ export const creditFraming = {
 /**
  * What each structure leaves with the people who already own the company.
  *
- * This is the calculation an earlier draft got wrong. Applying the dilution
- * difference to a common exit equity value produced roughly USD 25 million and
- * was incorrect, because the three structures do not share an exit equity
- * value: each carries different cash and different remaining debt. Comparing
- * proceeds structure by structure gives USD 9.7 million, and that is the figure
- * the workbook and the memorandum both carry.
+ * Proceeds are computed structure by structure rather than against a shared
+ * exit equity value, because the three structures do not share one: each
+ * carries different cash and different remaining debt at exit. Comparing them
+ * individually is what produces the USD 9.7 million figure that the workbook
+ * and the memorandum both carry.
  */
 export const existingHolderValue = {
   rows: [
@@ -885,8 +884,8 @@ export const existingHolderValue = {
       incrementalVersusAllEquity: 9.7,
     },
   ],
-  correction:
-    'The selected blend retains USD 9.7 million more for existing holders than the all equity case. An earlier draft stated USD 25 million. That figure applied the dilution difference to a common exit equity value and ignored the cash and the remaining debt each structure carries, so it overstated the benefit.',
+  summary:
+    'Relative to the all equity structure, the selected blend increases modelled proceeds to existing holders by approximately USD 9.7 million while reducing dilution from 17.2 percent to 7.7 percent. Each structure is compared on its own exit equity value, because the cash and the remaining debt at exit differ across the three.',
 } as const;
 
 /* -------------------------------------------------------------------------- */

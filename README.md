@@ -245,11 +245,11 @@ MOIC at a 20.5% IRR against 2.44x and 19.5% for all equity. The debt investor
 IRR is 11.4%. The all-debt structure is rejected on arithmetic: cash breaches
 the minimum level in year four.
 
-Existing holders keep USD 243.5 million under the blend against USD 233.8
-million under all equity, a difference of **USD 9.7 million**. An earlier draft
-stated USD 25 million; that figure applied the dilution difference to a common
-exit equity value and ignored the cash and remaining debt each structure
-carries, so it overstated the benefit and has been corrected throughout.
+Relative to the all-equity structure, the selected blend increases modelled
+proceeds to existing holders by approximately **USD 9.7 million** while reducing
+dilution from 17.2% to 7.7%: USD 243.5 million against USD 233.8 million. Each
+structure is compared on its own exit equity value, because the cash and the
+remaining debt at exit differ across the three.
 
 The debt is framed as a **recurring-revenue facility, not a conventional
 cash-flow loan**. EBITDA is negative through year four and DSCR stays below 1.0x

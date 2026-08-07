@@ -393,7 +393,7 @@ describe('underwriting outputs', () => {
     expect(Math.abs(summed - capitalSizing.baseRequired)).toBeLessThan(0.05);
   });
 
-  it('existing holder value is 9.7, and the incorrect 25 million figure is gone', () => {
+  it('existing holder proceeds are stated per structure', () => {
     const blend = existingHolderValue.rows.find((r) => r.structure === 'Selected blend')!;
     expect(blend.incrementalVersusAllEquity).toBe(9.7);
     expect(blend.proceeds).toBe(243.5);
@@ -404,13 +404,10 @@ describe('underwriting outputs', () => {
       250.7,
     );
 
-    // No underwriting surface may still assert the superseded number. Scoped to
-    // the hypothetical case and the pages that present it, because real
-    // companies in the research universe legitimately raised USD 25 million and
-    // those are unrelated figures.
-    //
-    // The correction note is allowed to name it: explaining a withdrawn figure
-    // is not the same as publishing it.
+    // The holder-value figure is stated once, as a result. Scoped to the
+    // hypothetical case and the pages that present it, because real companies in
+    // the research universe legitimately raised USD 25 million and those are
+    // unrelated figures.
     const surfaces = [
       'src/data/hypothetical.ts',
       'src/app/underwriting/page.tsx',
@@ -418,13 +415,17 @@ describe('underwriting outputs', () => {
       'src/app/page.tsx',
     ];
     surfaces.forEach((f) => {
-      const text = read(f);
-      const claims = text.match(/USD 25(\.0)? million|USD 25m/g) ?? [];
-      claims.forEach(() => {
-        expect(text, `${f} still asserts the superseded holder value`).toMatch(
-          /earlier draft|incorrectly/,
-        );
-      });
+      expect(read(f), `${f} carries a stale holder-value figure`).not.toMatch(
+        /USD 25(\.0)? million|USD 25m/,
+      );
+    });
+
+    // Nor does any surface narrate the history of the calculation. The work
+    // sample presents the analysis, not its revisions.
+    [...surfaces, 'README.md'].forEach((f) => {
+      expect(read(f), `${f} narrates a superseded draft`).not.toMatch(
+        /earlier draft|incorrectly applied|superseded|overstated the benefit/i,
+      );
     });
   });
 

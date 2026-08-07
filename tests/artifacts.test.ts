@@ -125,8 +125,19 @@ describe('artefacts', () => {
     expect(text).toContain('Base case gross capital required 16.9');
     expect(text).toContain('Downside gross capital required 24.6');
     expect(text).toContain('Downside funding shortfall 4.6');
-    // and explains why the superseded figure was wrong
-    expect(text).toContain('earlier USD 25 million statement incorrectly applied');
+    expect(text).toContain(
+      'the selected blend increases modeled proceeds to existing holders by approximately USD 9.7',
+    );
+  });
+
+  it('the PDF names the accompanying workbook by its final filename', () => {
+    const text = pdfText();
+    expect(text).toContain('Accompanying workbook: Enterprise Software Growth Capital Model.xlsx');
+    expect(text, 'the PDF must not carry an underscored filename').not.toContain(
+      'Enterprise_Software_',
+    );
+    // and identifies itself correctly
+    expect(text).toContain('Enterprise Software Origination and Underwriting Case');
   });
 
   it('20. the hypothetical disclosure appears on every page that presents the case', () => {

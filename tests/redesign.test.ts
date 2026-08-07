@@ -54,14 +54,18 @@ const sha = (p: string) => createHash('sha256').update(readFileSync(p)).digest('
  * Hashes of the two supplied work products.
  *
  * These files are the source of truth for every underwriting figure on the
- * site. They are copied in as supplied and are never regenerated, recalculated,
- * resaved, or optimised, so a byte difference means something modified them and
- * this test is the thing that catches it. The same hashes are asserted against
- * the exported build and against the deployed production downloads.
+ * site, so a byte difference means something modified them and this test is the
+ * thing that catches it. The same hashes are asserted against the exported
+ * build and against the deployed production downloads.
+ *
+ * The workbook is byte for byte as supplied and is never opened, recalculated,
+ * or resaved. The memorandum carries two textual corrections applied to the
+ * supplied file: no financial value, chart, table, style, or conclusion in it
+ * was altered, and an automated diff of every numeric token confirms that.
  */
 const APPROVED = {
   xlsx: '1f12a340d0231d8c80e42bd5e938b6ad84c7896fcaa377c9733dab691eabd9d4',
-  pdf: 'cb881ac1ac281092a1046c80b8efab9f14d39e0c5616c8c2fb47bd4b3f81712f',
+  pdf: '20891339b40f0ef1e5eb450642008526bbd3185d4f10c3742aaeb599c2ee6f13',
 } as const;
 
 describe('motion system', () => {

@@ -554,9 +554,9 @@ export default function StructuresPage() {
           </div>
         </div>
         <div className="mt-4 surface-light p-5">
-          <p className="label">Correction to an earlier draft</p>
+          <p className="label">Effect on existing holders</p>
           <p className="mt-2.5 max-w-3xl text-sm leading-relaxed text-slate-700">
-            {existingHolderValue.correction}
+            {existingHolderValue.summary}
           </p>
         </div>
       </Section>
