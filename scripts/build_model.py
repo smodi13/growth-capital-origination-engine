@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """
-Build Enterprise_Software_Growth_Capital_Model.xlsx.
+SUPERSEDED. The committed workbook and memorandum are supplied files that are
+the approved source of truth. Do not run this script over public/downloads:
+regenerating would change the bytes the site is verified against.
+
+Build Enterprise Software Growth Capital Model.xlsx.
 
 Design rules for this workbook:
 
@@ -29,7 +33,7 @@ OUT = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
     "public",
     "downloads",
-    "Enterprise_Software_Growth_Capital_Model.xlsx",
+    "Enterprise Software Growth Capital Model.xlsx",
 )
 
 COMPANY = "Northstar Workflow Systems"

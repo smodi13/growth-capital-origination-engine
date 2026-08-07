@@ -54,7 +54,7 @@ export function WorkflowDiagram() {
               {i < STAGES.length - 1 ? (
                 <span
                   aria-hidden="true"
-                  className="absolute left-[calc(0.55rem+2px)] right-0 top-[0.55rem] h-px bg-navy-700"
+                  className="absolute left-[calc(0.55rem+2px)] right-0 top-[0.55rem] h-px bg-slate-200"
                 >
                   <span
                     className="block h-full origin-left bg-cobalt-500"
@@ -73,12 +73,12 @@ export function WorkflowDiagram() {
                 className={`relative z-10 grid h-[1.1rem] w-[1.1rem] place-items-center rounded-full border transition-colors duration-300 ${
                   on
                     ? 'border-cobalt-400 bg-cobalt-500'
-                    : 'border-navy-600 bg-navy-900'
+                    : 'border-slate-200 bg-ivory-200'
                 }`}
               >
                 <span
                   className={`h-1.5 w-1.5 rounded-full transition-colors duration-300 ${
-                    on ? 'bg-navy-950' : 'bg-navy-700'
+                    on ? 'bg-white' : 'bg-slate-200'
                   }`}
                 />
               </span>
@@ -86,12 +86,12 @@ export function WorkflowDiagram() {
               <div className="mt-3 pr-3 last:pr-0">
                 <p
                   className={`text-xs font-semibold transition-colors duration-300 ${
-                    on ? 'text-ivory-50' : 'text-slate-500'
+                    on ? 'text-slate-900' : 'text-slate-600'
                   }`}
                 >
                   {s.label}
                 </p>
-                <p className="mt-1 text-3xs leading-snug text-slate-500">{s.detail}</p>
+                <p className="mt-1 text-3xs leading-snug text-slate-600">{s.detail}</p>
               </div>
             </li>
           );
@@ -107,20 +107,20 @@ export function WorkflowDiagram() {
               <span
                 aria-hidden="true"
                 className={`mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full border transition-colors duration-300 ${
-                  on ? 'border-cobalt-400 bg-cobalt-500' : 'border-navy-600 bg-navy-900'
+                  on ? 'border-cobalt-400 bg-cobalt-500' : 'border-slate-200 bg-ivory-200'
                 }`}
               >
                 <span
-                  className={`h-1.5 w-1.5 rounded-full ${on ? 'bg-navy-950' : 'bg-navy-700'}`}
+                  className={`h-1.5 w-1.5 rounded-full ${on ? 'bg-white' : 'bg-slate-200'}`}
                 />
               </span>
               <div>
                 <p
-                  className={`text-xs font-semibold ${on ? 'text-ivory-50' : 'text-slate-500'}`}
+                  className={`text-xs font-semibold ${on ? 'text-slate-900' : 'text-slate-600'}`}
                 >
                   {s.label}
                 </p>
-                <p className="mt-0.5 text-3xs leading-snug text-slate-500">{s.detail}</p>
+                <p className="mt-0.5 text-3xs leading-snug text-slate-600">{s.detail}</p>
               </div>
             </li>
           );

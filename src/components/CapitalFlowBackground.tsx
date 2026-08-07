@@ -51,15 +51,15 @@ const PATHS: string[] = [
 ];
 
 const NODES: NodeSpec[] = [
-  { path: 0, offset: 0.0, period: 34, radius: 2.6, opacity: 0.5 },
-  { path: 0, offset: 0.55, period: 34, radius: 1.8, opacity: 0.32 },
-  { path: 1, offset: 0.2, period: 29, radius: 2.4, opacity: 0.45 },
-  { path: 1, offset: 0.7, period: 29, radius: 1.6, opacity: 0.28 },
-  { path: 2, offset: 0.35, period: 38, radius: 2.6, opacity: 0.42 },
-  { path: 3, offset: 0.12, period: 44, radius: 1.9, opacity: 0.3 },
-  { path: 4, offset: 0.62, period: 41, radius: 1.9, opacity: 0.3 },
-  { path: 5, offset: 0.45, period: 31, radius: 2.2, opacity: 0.4 },
-  { path: 6, offset: 0.8, period: 36, radius: 2.2, opacity: 0.36 },
+  { path: 0, offset: 0.0, period: 34, radius: 2.6, opacity: 0.275 },
+  { path: 0, offset: 0.55, period: 34, radius: 1.8, opacity: 0.176 },
+  { path: 1, offset: 0.2, period: 29, radius: 2.4, opacity: 0.248 },
+  { path: 1, offset: 0.7, period: 29, radius: 1.6, opacity: 0.154 },
+  { path: 2, offset: 0.35, period: 38, radius: 2.6, opacity: 0.231 },
+  { path: 3, offset: 0.12, period: 44, radius: 1.9, opacity: 0.165 },
+  { path: 4, offset: 0.62, period: 41, radius: 1.9, opacity: 0.165 },
+  { path: 5, offset: 0.45, period: 31, radius: 2.2, opacity: 0.22 },
+  { path: 6, offset: 0.8, period: 36, radius: 2.2, opacity: 0.198 },
 ];
 
 /** Stage markers along the pipeline, matching the workflow copy. */
@@ -111,14 +111,18 @@ export function CapitalFlowBackground({ className = '' }: { className?: string }
       aria-hidden="true"
       className={`pointer-events-none absolute inset-0 overflow-hidden ${className}`}
     >
-      {/* Radial lighting wash. Static gradients, no animation. */}
+      {/*
+        Lighting wash. The ground stays white: the darkest stop resolves to
+        approximately #F7F9FC, which is a shift in value rather than a colour
+        cast. Nothing here may read as a blue background.
+      */}
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 bg-white"
         style={{
           background:
-            'radial-gradient(1100px 520px at 22% 12%, rgba(47,107,179,0.16), transparent 62%),' +
-            'radial-gradient(820px 460px at 82% 78%, rgba(31,133,139,0.11), transparent 65%),' +
-            'radial-gradient(680px 420px at 52% 42%, rgba(19,40,72,0.5), transparent 70%)',
+            'radial-gradient(1100px 520px at 22% 12%, rgba(47,107,179,0.030), transparent 64%),' +
+            'radial-gradient(820px 460px at 82% 78%, rgba(52,124,130,0.022), transparent 66%),' +
+            '#ffffff',
         }}
       />
 
@@ -132,21 +136,21 @@ export function CapitalFlowBackground({ className = '' }: { className?: string }
         <defs>
           <linearGradient id="cf-line" x1="0" y1="0" x2="1" y2="0">
             <stop offset="0%" stopColor="#2f6bb3" stopOpacity="0" />
-            <stop offset="28%" stopColor="#2f6bb3" stopOpacity="0.34" />
-            <stop offset="72%" stopColor="#1f858b" stopOpacity="0.3" />
-            <stop offset="100%" stopColor="#1f858b" stopOpacity="0" />
+            <stop offset="28%" stopColor="#2f6bb3" stopOpacity="0.09" />
+            <stop offset="72%" stopColor="#347c82" stopOpacity="0.08" />
+            <stop offset="100%" stopColor="#347c82" stopOpacity="0" />
           </linearGradient>
           <radialGradient id="cf-node">
-            <stop offset="0%" stopColor="#9fc4ea" stopOpacity="0.95" />
-            <stop offset="55%" stopColor="#4f89cd" stopOpacity="0.55" />
+            <stop offset="0%" stopColor="#2f6bb3" stopOpacity="0.42" />
+            <stop offset="55%" stopColor="#4f89cd" stopOpacity="0.28" />
             <stop offset="100%" stopColor="#4f89cd" stopOpacity="0" />
           </radialGradient>
           <pattern id="cf-grid" width="60" height="60" patternUnits="userSpaceOnUse">
             <path
               d="M 60 0 L 0 0 0 60"
               fill="none"
-              stroke="#ffffff"
-              strokeOpacity="0.028"
+              stroke="#101828"
+              strokeOpacity="0.032"
               strokeWidth="1"
             />
           </pattern>
@@ -171,8 +175,8 @@ export function CapitalFlowBackground({ className = '' }: { className?: string }
               cy={s.y}
               r={s.r}
               fill="none"
-              stroke="#4f89cd"
-              strokeOpacity="0.3"
+              stroke="#2f6bb3"
+              strokeOpacity="0.11"
               strokeWidth="1"
             />
           ))}
@@ -205,22 +209,8 @@ export function CapitalFlowBackground({ className = '' }: { className?: string }
         </g>
       </svg>
 
-      {/*
-        Noise texture. The turbulence filter is inline in a data URI, which the
-        content security policy permits because it is same origin data rather
-        than a remote asset. It is rendered once and never animated.
-      */}
-      <div
-        className="absolute inset-0 opacity-[0.045] mix-blend-overlay"
-        style={{
-          backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E\")",
-          backgroundRepeat: 'repeat',
-        }}
-      />
-
       {/* Fade to the page ground so the hero and the sections below join. */}
-      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-navy-950" />
+      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-white" />
     </div>
   );
 }

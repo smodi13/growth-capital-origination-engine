@@ -4,6 +4,7 @@ import {
   blendedCaseAssumptions,
   creditCaseAssumptions,
   downsideOutcomes,
+  existingHolderValue,
   exitMultipleSensitivity,
   growthEquityCase,
   growthSensitivity,
@@ -12,6 +13,9 @@ import {
   HYPOTHETICAL_NAME,
   ILLUSTRATIVE_FOOTER,
   interestRateSensitivity,
+  MIX_STATUS_MEANING,
+  mixConclusion,
+  mixSensitivity,
   privateCreditCase,
   recommendation,
   retentionSensitivity,
@@ -68,7 +72,7 @@ function CashSchedule({ s }: { s: StructureResult }) {
           align: 'right',
           render: (r) =>
             r.breachesMinimumCash ? (
-              <span className="rounded border border-risk-500/40 bg-risk-700/22 px-1.5 py-0.5 text-2xs text-risk-200">
+              <span className="rounded border border-risk-200 bg-risk-100 px-1.5 py-0.5 text-2xs text-risk-700">
                 Breach
               </span>
             ) : (
@@ -87,6 +91,8 @@ const SECTIONS = [
   { id: 'credit', label: 'Private credit case' },
   { id: 'blended', label: 'Blended capital case' },
   { id: 'sensitivities', label: 'Sensitivities' },
+  { id: 'mix', label: 'Equity and debt mix' },
+  { id: 'holders', label: 'Existing holder value' },
   { id: 'recommendation', label: 'Recommendation' },
 ];
 
@@ -139,11 +145,11 @@ export default function StructuresPage() {
         <div className="table-scroll" tabIndex={0} role="region" aria-label="Scrollable table">
           <table className="w-full min-w-[46rem] border-collapse text-left">
             <thead>
-              <tr className="border-b border-white/[0.07]">
+              <tr className="border-b border-slate-100">
                 <th scope="col" className="px-3 py-2"><span className="label">Metric</span></th>
                 {structures.map((s) => (
                   <th key={s.key} scope="col" className="px-3 py-2 text-right">
-                    <span className={`label ${s.key === 'blended' ? 'text-cobalt-400' : ''}`}>
+                    <span className={`label ${s.key === 'blended' ? 'text-cobalt-600' : ''}`}>
                       {s.label}
                       {s.key === 'blended' ? ' (recommended)' : ''}
                     </span>
@@ -153,13 +159,13 @@ export default function StructuresPage() {
             </thead>
             <tbody>
               {comparison.map((row) => (
-                <tr key={row.label} className="border-b border-white/[0.06]">
-                  <td className="px-3 py-2.5 text-xs text-slate-400">{row.label}</td>
+                <tr key={row.label} className="border-b border-slate-100">
+                  <td className="px-3 py-2.5 text-xs text-slate-600">{row.label}</td>
                   {structures.map((s) => (
                     <td
                       key={s.key}
                       className={`num px-3 py-2.5 text-right ${
-                        s.key === 'blended' ? 'font-semibold text-cobalt-200' : 'text-slate-200'
+                        s.key === 'blended' ? 'font-semibold text-cobalt-700' : 'text-slate-800'
                       }`}
                     >
                       {row.get(s)}
@@ -188,14 +194,14 @@ export default function StructuresPage() {
           ].map(([k, v]) => (
             <div key={k} className="panel px-4 py-3">
               <p className="label">{k}</p>
-              <p className="mt-1 font-mono text-lg font-semibold text-ivory-50">{v}</p>
+              <p className="mt-1 font-mono text-lg font-semibold text-slate-900">{v}</p>
             </div>
           ))}
         </div>
         <div className="mt-4">
           <CashSchedule s={growthEquityCase} />
         </div>
-        <p className="mt-3 max-w-3xl text-xs leading-relaxed text-slate-400">
+        <p className="mt-3 max-w-3xl text-xs leading-relaxed text-slate-600">
           The all equity structure is the safest and the most expensive. It never approaches the
           minimum cash covenant and survives the downside case comfortably, but it costs existing
           holders {p(growthEquityCase.founderDilution)} of the company to achieve that.
@@ -217,7 +223,7 @@ export default function StructuresPage() {
           ].map(([k, v]) => (
             <div key={k} className="panel px-4 py-3">
               <p className="label">{k}</p>
-              <p className="mt-1 font-mono text-lg font-semibold text-ivory-50">{v}</p>
+              <p className="mt-1 font-mono text-lg font-semibold text-slate-900">{v}</p>
             </div>
           ))}
         </div>
@@ -237,9 +243,9 @@ export default function StructuresPage() {
           <CashSchedule s={privateCreditCase} />
         </div>
 
-        <div className="mt-4 rounded-md border border-risk-500/40 bg-risk-700/15 p-4">
-          <p className="text-xs font-semibold text-risk-200">The all debt structure does not work</p>
-          <p className="mt-1.5 max-w-3xl text-xs leading-relaxed text-risk-200/85">
+        <div className="mt-4 rounded-md border border-risk-200 bg-risk-700/15 p-4">
+          <p className="text-xs font-semibold text-risk-700">The all debt structure does not work</p>
+          <p className="mt-1.5 max-w-3xl text-xs leading-relaxed text-risk-700">
             Interest coverage is negative in every year until year five because EBITDA is negative,
             and debt service coverage never approaches 1.0x. Cash falls to USD{' '}
             {privateCreditCase.lowestCash.toFixed(1)} million and breaches the USD{' '}
@@ -268,7 +274,7 @@ export default function StructuresPage() {
           ].map(([k, v]) => (
             <div key={k} className="panel px-4 py-3">
               <p className="label">{k}</p>
-              <p className="mt-1 font-mono text-lg font-semibold text-cobalt-200">{v}</p>
+              <p className="mt-1 font-mono text-lg font-semibold text-cobalt-700">{v}</p>
             </div>
           ))}
         </div>
@@ -288,9 +294,9 @@ export default function StructuresPage() {
           <CashSchedule s={blendedCapitalCase} />
         </div>
 
-        <div className="mt-4 rounded-md border border-cobalt-600/40 bg-cobalt-700/15 p-4">
-          <p className="text-xs font-semibold text-cobalt-200">Combined company cash impact</p>
-          <p className="mt-1.5 max-w-3xl text-xs leading-relaxed text-cobalt-100/80">
+        <div className="mt-4 rounded-md border border-cobalt-200 bg-cobalt-700/15 p-4">
+          <p className="text-xs font-semibold text-cobalt-700">Combined company cash impact</p>
+          <p className="mt-1.5 max-w-3xl text-xs leading-relaxed text-cobalt-700">
             The blended structure raises the same USD {transactionAssumptions.capitalRaised.toFixed(1)}{' '}
             million while diluting existing holders by {p(blendedCapitalCase.founderDilution)} rather
             than {p(growthEquityCase.founderDilution)}, a saving of{' '}
@@ -315,13 +321,13 @@ export default function StructuresPage() {
       >
         <div className="grid gap-4 lg:grid-cols-2">
           <div className="panel p-4">
-            <h3 className="text-sm font-semibold text-slate-100">Exit multiple sensitivity</h3>
-            <p className="mt-1 text-2xs text-slate-500">
+            <h3 className="text-sm font-semibold text-slate-800">Exit multiple sensitivity</h3>
+            <p className="mt-1 text-2xs text-slate-600">
               Blended capital equity investor outcomes across exit ARR multiples.
             </p>
             <table className="mt-3 w-full text-left">
               <thead>
-                <tr className="border-b border-white/[0.07]">
+                <tr className="border-b border-slate-100">
                   <th className="py-1.5"><span className="label">Exit multiple</span></th>
                   <th className="py-1.5 text-right"><span className="label">Equity value</span></th>
                   <th className="py-1.5 text-right"><span className="label">MOIC</span></th>
@@ -331,10 +337,10 @@ export default function StructuresPage() {
               <tbody>
                 {exitMultipleSensitivity(blendedCapitalCase).map((r) => (
                   <tr key={r.multiple} className="border-b border-white/[0.07]/50">
-                    <td className="num py-1.5 text-slate-300">{r.multiple.toFixed(1)}x</td>
-                    <td className="num py-1.5 text-right text-slate-300">{r.equityValue.toFixed(1)}</td>
-                    <td className="num py-1.5 text-right font-semibold text-slate-100">{r.moic.toFixed(2)}x</td>
-                    <td className="num py-1.5 text-right text-slate-300">{p(r.irr)}</td>
+                    <td className="num py-1.5 text-slate-700">{r.multiple.toFixed(1)}x</td>
+                    <td className="num py-1.5 text-right text-slate-700">{r.equityValue.toFixed(1)}</td>
+                    <td className="num py-1.5 text-right font-semibold text-slate-800">{r.moic.toFixed(2)}x</td>
+                    <td className="num py-1.5 text-right text-slate-700">{p(r.irr)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -342,13 +348,13 @@ export default function StructuresPage() {
           </div>
 
           <div className="panel p-4">
-            <h3 className="text-sm font-semibold text-slate-100">ARR growth sensitivity</h3>
-            <p className="mt-1 text-2xs text-slate-500">
+            <h3 className="text-sm font-semibold text-slate-800">ARR growth sensitivity</h3>
+            <p className="mt-1 text-2xs text-slate-600">
               Year one growth varied, with the same annual decay applied thereafter.
             </p>
             <table className="mt-3 w-full text-left">
               <thead>
-                <tr className="border-b border-white/[0.07]">
+                <tr className="border-b border-slate-100">
                   <th className="py-1.5"><span className="label">Year one growth</span></th>
                   <th className="py-1.5 text-right"><span className="label">Year five ARR</span></th>
                   <th className="py-1.5 text-right"><span className="label">Exit EV at 7.0x</span></th>
@@ -357,9 +363,9 @@ export default function StructuresPage() {
               <tbody>
                 {growthSensitivity().map((r) => (
                   <tr key={r.rate} className="border-b border-white/[0.07]/50">
-                    <td className="num py-1.5 text-slate-300">{p(r.rate, 0)}</td>
-                    <td className="num py-1.5 text-right font-semibold text-slate-100">{r.endingArr.toFixed(1)}</td>
-                    <td className="num py-1.5 text-right text-slate-300">{r.exitEvAt7x.toFixed(1)}</td>
+                    <td className="num py-1.5 text-slate-700">{p(r.rate, 0)}</td>
+                    <td className="num py-1.5 text-right font-semibold text-slate-800">{r.endingArr.toFixed(1)}</td>
+                    <td className="num py-1.5 text-right text-slate-700">{r.exitEvAt7x.toFixed(1)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -367,14 +373,14 @@ export default function StructuresPage() {
           </div>
 
           <div className="panel p-4">
-            <h3 className="text-sm font-semibold text-slate-100">Retention sensitivity</h3>
-            <p className="mt-1 text-2xs text-slate-500">
+            <h3 className="text-sm font-semibold text-slate-800">Retention sensitivity</h3>
+            <p className="mt-1 text-2xs text-slate-600">
               Net revenue retention varied while holding the ARR growth target fixed. Lower retention
               means more new ARR must be sold to reach the same ending ARR.
             </p>
             <table className="mt-3 w-full text-left">
               <thead>
-                <tr className="border-b border-white/[0.07]">
+                <tr className="border-b border-slate-100">
                   <th className="py-1.5"><span className="label">Net revenue retention</span></th>
                   <th className="py-1.5 text-right"><span className="label">Year one new ARR required</span></th>
                 </tr>
@@ -382,8 +388,8 @@ export default function StructuresPage() {
               <tbody>
                 {retentionSensitivity().map((r) => (
                   <tr key={r.nrr} className="border-b border-white/[0.07]/50">
-                    <td className="num py-1.5 text-slate-300">{p(r.nrr, 0)}</td>
-                    <td className="num py-1.5 text-right font-semibold text-slate-100">{r.newArrYear1.toFixed(2)}</td>
+                    <td className="num py-1.5 text-slate-700">{p(r.nrr, 0)}</td>
+                    <td className="num py-1.5 text-right font-semibold text-slate-800">{r.newArrYear1.toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -391,14 +397,14 @@ export default function StructuresPage() {
           </div>
 
           <div className="panel p-4">
-            <h3 className="text-sm font-semibold text-slate-100">Interest rate sensitivity</h3>
-            <p className="mt-1 text-2xs text-slate-500">
+            <h3 className="text-sm font-semibold text-slate-800">Interest rate sensitivity</h3>
+            <p className="mt-1 text-2xs text-slate-600">
               Applied to the USD {blendedCaseAssumptions.debtComponent.toFixed(1)} million blended
               facility, showing where the minimum cash covenant starts to bind.
             </p>
             <table className="mt-3 w-full text-left">
               <thead>
-                <tr className="border-b border-white/[0.07]">
+                <tr className="border-b border-slate-100">
                   <th className="py-1.5"><span className="label">Cash interest rate</span></th>
                   <th className="py-1.5 text-right"><span className="label">Annual interest</span></th>
                   <th className="py-1.5 text-right"><span className="label">Lowest cash</span></th>
@@ -408,10 +414,10 @@ export default function StructuresPage() {
               <tbody>
                 {interestRateSensitivity().map((r) => (
                   <tr key={r.rate} className="border-b border-white/[0.07]/50">
-                    <td className="num py-1.5 text-slate-300">{p(r.rate, 0)}</td>
-                    <td className="num py-1.5 text-right text-slate-300">{r.annualCashInterest.toFixed(2)}</td>
-                    <td className="num py-1.5 text-right font-semibold text-slate-100">{r.lowestCash.toFixed(1)}</td>
-                    <td className="num py-1.5 text-right text-slate-300">
+                    <td className="num py-1.5 text-slate-700">{p(r.rate, 0)}</td>
+                    <td className="num py-1.5 text-right text-slate-700">{r.annualCashInterest.toFixed(2)}</td>
+                    <td className="num py-1.5 text-right font-semibold text-slate-800">{r.lowestCash.toFixed(1)}</td>
+                    <td className="num py-1.5 text-right text-slate-700">
                       {r.breachYear === null ? 'None' : `Year ${r.breachYear}`}
                     </td>
                   </tr>
@@ -423,21 +429,153 @@ export default function StructuresPage() {
         <p className="mt-3 text-2xs text-slate-600">USD millions. {ILLUSTRATIVE_FOOTER}</p>
       </Section>
 
-      <Section id="recommendation" title="Recommendation">
+      {/* =============================================== Mix sensitivity == */}
+      <Section
+        id="mix"
+        ground="neutral"
+        title="Equity and debt mix sensitivity"
+        description="The same USD 20 million split six ways, tested against the downside case rather than only the base case."
+      >
+        <div className="panel overflow-hidden">
+          <div className="table-scroll" tabIndex={0} role="region" aria-label="Scrollable table">
+            <table className="w-full min-w-[44rem] text-sm">
+              <caption className="sr-only">
+                Base and downside year five cash by equity and debt mix, in USD millions
+              </caption>
+              <thead className="border-b border-slate-200 bg-ivory-200">
+                <tr>
+                  <th scope="col" className="th label">Equity</th>
+                  <th scope="col" className="th label">Debt</th>
+                  <th scope="col" className="th label text-right">Dilution</th>
+                  <th scope="col" className="th label text-right">Base Y5 cash</th>
+                  <th scope="col" className="th label text-right">Downside Y5 cash</th>
+                  <th scope="col" className="th label">Downside status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {mixSensitivity.map((r) => (
+                  <tr key={r.equity} className={r.selected ? 'bg-cobalt-50' : undefined}>
+                    <th scope="row" className="td text-left font-medium text-slate-800">
+                      USD {r.equity}m
+                      {r.selected ? (
+                        <span className="ml-2 rounded border border-cobalt-200 bg-white px-1.5 py-0.5 text-3xs font-semibold uppercase tracking-wider text-cobalt-700">
+                          Selected
+                        </span>
+                      ) : null}
+                    </th>
+                    <td className="td num text-slate-800">USD {r.debt}m</td>
+                    <td className="td num text-right text-slate-800">{p(r.dilution)}</td>
+                    <td className="td num text-right text-slate-800">USD {m(r.baseYear5Cash)}m</td>
+                    <td
+                      className={`td num text-right font-medium ${
+                        r.downsideYear5Cash < 0 ? 'text-risk-700' : 'text-slate-800'
+                      }`}
+                    >
+                      USD {m(r.downsideYear5Cash)}m
+                    </td>
+                    <td className="td">
+                      <span
+                        className={`chip ${
+                          r.status === 'FAIL'
+                            ? 'border-risk-200 bg-risk-100 text-risk-700'
+                            : r.status === 'BREACH'
+                              ? 'border-caution-200 bg-caution-100 text-caution-700'
+                              : 'border-positive-200 bg-positive-100 text-positive-700'
+                        }`}
+                        title={MIX_STATUS_MEANING[r.status]}
+                      >
+                        {r.status === 'HEADROOM' ? 'Headroom' : r.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="border-t border-slate-100 px-4 py-3 text-2xs leading-relaxed text-slate-600">
+            USD millions. Figures in parentheses are negative. Minimum cash level is USD{' '}
+            {transactionAssumptions.minimumCashCovenant.toFixed(1)} million. {ILLUSTRATIVE_FOOTER}
+          </p>
+        </div>
+
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <div className="panel p-5">
+            <p className="label-accent">Why 8 and 12 is the base case recommendation</p>
+            <p className="mt-2.5 text-sm leading-relaxed text-slate-700">{mixConclusion.selected}</p>
+          </div>
+          <div className="rounded-xl border border-caution-200 bg-caution-100 p-5">
+            <p className="text-3xs font-semibold uppercase tracking-[0.16em] text-caution-700">
+              And where it does not hold
+            </p>
+            <p className="mt-2.5 text-sm leading-relaxed text-caution-800">{mixConclusion.tension}</p>
+            <p className="mt-3 text-xs leading-relaxed text-caution-800">{mixConclusion.threshold}</p>
+            <p className="mt-3 border-t border-caution-200 pt-3 text-xs leading-relaxed text-caution-800">
+              {mixConclusion.implication}
+            </p>
+          </div>
+        </div>
+      </Section>
+
+      {/* ============================================ Holder value ======== */}
+      <Section
+        id="holders"
+        title="Existing holder value"
+        description="What each structure leaves with the people who already own the company, calculated structure by structure rather than against a shared exit value."
+      >
+        <div className="panel overflow-hidden">
+          <div className="table-scroll" tabIndex={0} role="region" aria-label="Scrollable table">
+            <table className="w-full min-w-[40rem] text-sm">
+              <caption className="sr-only">Existing holder proceeds by structure, in USD millions</caption>
+              <thead className="border-b border-slate-200 bg-ivory-200">
+                <tr>
+                  <th scope="col" className="th label">Structure</th>
+                  <th scope="col" className="th label text-right">Existing holder ownership</th>
+                  <th scope="col" className="th label text-right">Exit equity value</th>
+                  <th scope="col" className="th label text-right">Existing holder proceeds</th>
+                  <th scope="col" className="th label text-right">Incremental vs all equity</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {existingHolderValue.rows.map((r) => (
+                  <tr key={r.structure} className={r.structure === 'Selected blend' ? 'bg-cobalt-50' : undefined}>
+                    <th scope="row" className="td text-left font-medium text-slate-800">{r.structure}</th>
+                    <td className="td num text-right text-slate-800">{p(r.ownership)}</td>
+                    <td className="td num text-right text-slate-800">USD {r.exitEquityValue.toFixed(1)}m</td>
+                    <td className="td num text-right font-semibold text-slate-900">
+                      USD {r.proceeds.toFixed(1)}m
+                    </td>
+                    <td className="td num text-right text-slate-800">
+                      USD {r.incrementalVersusAllEquity.toFixed(1)}m
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div className="mt-4 surface-light p-5">
+          <p className="label">Correction to an earlier draft</p>
+          <p className="mt-2.5 max-w-3xl text-sm leading-relaxed text-slate-700">
+            {existingHolderValue.correction}
+          </p>
+        </div>
+      </Section>
+
+      <Section id="recommendation" ground="conclusion" title="Recommendation">
         <div className="panel p-5">
-          <h3 className="text-lg font-semibold text-cobalt-300">{recommendation.structure}</h3>
-          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-200">{recommendation.headline}</p>
+          <h3 className="text-lg font-semibold text-cobalt-600">{recommendation.structure}</h3>
+          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-800">{recommendation.headline}</p>
           <ul className="mt-4 space-y-3">
             {recommendation.reasons.map((r) => (
               <li key={r.title} className="grid gap-1 sm:grid-cols-[11rem_minmax(0,1fr)] sm:gap-4">
                 <span className="label pt-0.5">{r.title}</span>
-                <span className="text-xs leading-relaxed text-slate-300">{r.detail}</span>
+                <span className="text-xs leading-relaxed text-slate-700">{r.detail}</span>
               </li>
             ))}
           </ul>
-          <div className="mt-5 rounded-md border border-caution-500/40 bg-caution-700/15 p-3.5">
-            <p className="text-xs font-semibold text-caution-100">Where this conclusion could be wrong</p>
-            <p className="mt-1.5 text-xs leading-relaxed text-caution-100/85">{recommendation.caveat}</p>
+          <div className="mt-5 rounded-md border border-caution-200 bg-caution-100 p-3.5">
+            <p className="text-xs font-semibold text-caution-700">Where this conclusion could be wrong</p>
+            <p className="mt-1.5 text-xs leading-relaxed text-caution-700">{recommendation.caveat}</p>
           </div>
         </div>
       </Section>

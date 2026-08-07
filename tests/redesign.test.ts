@@ -51,15 +51,17 @@ const outCss = walk(OUT, (p) => p.endsWith('.css'));
 const sha = (p: string) => createHash('sha256').update(readFileSync(p)).digest('hex');
 
 /**
- * Hashes of the artefacts approved during the underwriting build.
+ * Hashes of the two supplied work products.
  *
- * The redesign was explicitly not permitted to change the Excel formulas or the
- * PDF conclusions. If either file changes, this test fails and the change has
- * to be an intentional regeneration rather than a side effect.
+ * These files are the source of truth for every underwriting figure on the
+ * site. They are copied in as supplied and are never regenerated, recalculated,
+ * resaved, or optimised, so a byte difference means something modified them and
+ * this test is the thing that catches it. The same hashes are asserted against
+ * the exported build and against the deployed production downloads.
  */
 const APPROVED = {
-  xlsx: '16e0b1f52ce4ad666161912a426a1e22dd4f7b901352bdbf6abe51f6686ef42c',
-  pdf: '622b7837cdd60a6f0b9d3c4a28c136860080bc305538e223f9e7faea14ff0660',
+  xlsx: '1f12a340d0231d8c80e42bd5e938b6ad84c7896fcaa377c9733dab691eabd9d4',
+  pdf: 'cb881ac1ac281092a1046c80b8efab9f14d39e0c5616c8c2fb47bd4b3f81712f',
 } as const;
 
 describe('motion system', () => {
@@ -449,8 +451,8 @@ describe('artefacts and security are unchanged', () => {
     expect(sha(PDF_PATH), 'PDF memorandum changed unexpectedly').toBe(APPROVED.pdf);
 
     // The copies served from the build must match the source files exactly.
-    const outXlsx = resolve(OUT, 'downloads/Enterprise_Software_Growth_Capital_Model.xlsx');
-    const outPdf = resolve(OUT, 'downloads/Enterprise_Software_Origination_and_Underwriting_Case.pdf');
+    const outXlsx = resolve(OUT, 'downloads/Enterprise Software Growth Capital Model.xlsx');
+    const outPdf = resolve(OUT, 'downloads/Enterprise Software Origination and Underwriting Case.pdf');
     expect(existsSync(outXlsx)).toBe(true);
     expect(existsSync(outPdf)).toBe(true);
     expect(sha(outXlsx)).toBe(APPROVED.xlsx);

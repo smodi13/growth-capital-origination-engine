@@ -64,7 +64,7 @@ const ROWS: RowDef[] = [
   { label: 'Data confidence', render: (r) => <ConfidenceBadge value={r.confidence} /> },
   {
     label: 'Origination score',
-    render: (r) => <span className="num text-base font-semibold text-ivory-50">{r.score.toFixed(1)}</span>,
+    render: (r) => <span className="num text-base font-semibold text-slate-900">{r.score.toFixed(1)}</span>,
   },
   { label: 'Growth equity fit', render: (r) => <span className="num">{r.equityFit} / 5</span> },
   { label: 'Private credit fit', render: (r) => <span className="num">{r.debtFit} / 5</span> },
@@ -96,7 +96,7 @@ export function CompareTool({ records }: { records: CompareRecord[] }) {
       <div className="panel p-4">
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <p className="label">Select up to {MAX} companies</p>
-          <p className="text-2xs text-slate-500">
+          <p className="text-2xs text-slate-600">
             {selected.length} of {MAX} selected
           </p>
         </div>
@@ -113,10 +113,10 @@ export function CompareTool({ records }: { records: CompareRecord[] }) {
                 aria-pressed={isOn}
                 className={`rounded border px-2.5 py-1.5 text-2xs font-medium transition-colors ${
                   isOn
-                    ? 'border-cobalt-500 bg-cobalt-600/20 text-cobalt-200'
+                    ? 'border-cobalt-500 bg-cobalt-50 text-cobalt-700'
                     : isFull
-                      ? 'cursor-not-allowed border-white/[0.07] bg-graphite-900/50 text-slate-600'
-                      : 'border-white/10 bg-graphite-900 text-slate-300 hover:border-white/15 hover:text-slate-100'
+                      ? 'cursor-not-allowed border-slate-100 bg-ivory-100 text-slate-600'
+                      : 'border-slate-100 bg-white text-slate-700 hover:border-slate-200 hover:text-slate-800'
                 }`}
               >
                 {r.name}
@@ -128,7 +128,7 @@ export function CompareTool({ records }: { records: CompareRecord[] }) {
           <button
             type="button"
             onClick={() => setSelected([])}
-            className="mt-3 text-2xs text-slate-500 underline underline-offset-2 hover:text-slate-300"
+            className="mt-3 text-2xs text-slate-600 underline underline-offset-2 hover:text-slate-700"
           >
             Clear selection
           </button>
@@ -136,7 +136,7 @@ export function CompareTool({ records }: { records: CompareRecord[] }) {
       </div>
 
       {chosen.length === 0 ? (
-        <p className="mt-6 text-sm text-slate-500">
+        <p className="mt-6 text-sm text-slate-600">
           Select at least one company above to build a comparison.
         </p>
       ) : (
@@ -146,13 +146,13 @@ export function CompareTool({ records }: { records: CompareRecord[] }) {
             style={{ minWidth: `${14 + chosen.length * 16}rem` }}
           >
             <thead>
-              <tr className="border-b border-white/[0.07]">
+              <tr className="border-b border-slate-100">
                 <th scope="col" className="w-56 px-3 py-3 align-bottom">
                   <span className="label">Attribute</span>
                 </th>
                 {chosen.map((r) => (
                   <th key={r.slug} scope="col" className="px-3 py-3 align-bottom">
-                    <Link href={`/companies/${r.slug}/`} className="text-sm font-semibold text-ivory-50 hover:text-cobalt-300">
+                    <Link href={`/companies/${r.slug}/`} className="text-sm font-semibold text-slate-900 hover:text-cobalt-600">
                       {r.name}
                     </Link>
                   </th>
@@ -161,14 +161,14 @@ export function CompareTool({ records }: { records: CompareRecord[] }) {
             </thead>
             <tbody>
               {ROWS.map((row) => (
-                <tr key={row.label} className="border-b border-white/[0.06] align-top">
+                <tr key={row.label} className="border-b border-slate-100 align-top">
                   <th scope="row" className="px-3 py-3 text-left">
                     <span className="label">{row.label}</span>
                   </th>
                   {chosen.map((r) => (
                     <td
                       key={r.slug}
-                      className={`px-3 py-3 text-xs text-slate-300 ${row.wrap ? 'leading-relaxed' : ''}`}
+                      className={`px-3 py-3 text-xs text-slate-700 ${row.wrap ? 'leading-relaxed' : ''}`}
                     >
                       {row.render(r)}
                     </td>

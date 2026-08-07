@@ -11,8 +11,8 @@ import { inflateRawSync, inflateSync } from 'node:zlib';
 import { resolve } from 'node:path';
 
 export const ROOT = resolve(__dirname, '..', '..');
-export const XLSX_PATH = resolve(ROOT, 'public/downloads/Enterprise_Software_Growth_Capital_Model.xlsx');
-export const PDF_PATH = resolve(ROOT, 'public/downloads/Enterprise_Software_Origination_and_Underwriting_Case.pdf');
+export const XLSX_PATH = resolve(ROOT, 'public/downloads/Enterprise Software Growth Capital Model.xlsx');
+export const PDF_PATH = resolve(ROOT, 'public/downloads/Enterprise Software Origination and Underwriting Case.pdf');
 
 /* -------------------------------------------------------------------------- */
 /* ZIP (xlsx is a zip container)                                              */
@@ -108,7 +108,9 @@ export function xlsxFormulaCount(): number {
   let n = 0;
   xlsxEntries().forEach((e) => {
     if (/^xl\/worksheets\/sheet\d+\.xml$/.test(e.name)) {
-      n += (e.data.toString('utf8').match(/<f>/g) ?? []).length;
+      // Formula elements carry attributes in some writers, so match the tag
+      // opening rather than the bare `<f>` form.
+      n += (e.data.toString('utf8').match(/<f[ >\/]/g) ?? []).length;
     }
   });
   return n;

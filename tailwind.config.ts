@@ -3,61 +3,54 @@ import type { Config } from 'tailwindcss';
 /**
  * Institutional research design system.
  *
- * The palette is built around three grounds rather than one: a deep navy that
- * carries the chrome and the hero, a graphite that separates panels from that
- * ground, and an ivory content surface used where sustained reading happens.
- * Having more than one ground is what lets hierarchy exist at all.
+ * The ground is white. Every primary surface is #FFFFFF, separated by hairline
+ * borders rather than by changes in value, with two neutral greys available
+ * where a section needs to sit back from the page. That is what makes this read
+ * as investment research rather than as a dashboard: hierarchy comes from type
+ * and rule weight, not from stacked dark panels.
  *
- * Accents are a muted cobalt for interactive and structural emphasis and a
- * restrained teal for analytical highlights. Financial state uses a muted green
- * and a restrained amber and red, never as the only carrier of meaning.
+ * Cobalt is the primary accent and teal the analytical secondary. Both are
+ * accents only. Neither is permitted to carry a page, hero, section, table, or
+ * navigation background. Navy survives in three places where a dark ground
+ * genuinely aids reading: table header rows, the footer, and a single
+ * recommendation banner.
  */
 const config: Config = {
   content: ['./src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
-        // Deep navy ground. Chrome, hero, and dark sections.
+        // Dark navy. Permitted only on table header rows, the footer, and one
+        // recommendation banner. Never a page, hero, or section ground.
         navy: {
-          950: '#070b14',
-          900: '#0b1220',
-          850: '#0f172a',
-          800: '#141f36',
-          700: '#1c2a45',
-          600: '#273954',
-          500: '#3a4d6b',
+          950: '#0b1220',
+          900: '#101828',
+          850: '#172033',
+          800: '#1f2b42',
+          700: '#2b3852',
+          600: '#3a4761',
+          500: '#4c5a75',
         },
-        // Graphite. Panel surfaces on the navy ground.
-        graphite: {
-          900: '#111823',
-          800: '#182130',
-          700: '#212c3e',
-          600: '#2c3849',
-          500: '#3c4859',
-          400: '#5a6779',
-          300: '#8a96a6',
-        },
-        // Ivory content surface for sustained reading.
+        // Neutral grounds. 50 is the page and card surface.
         ivory: {
-          50: '#fdfcfa',
-          100: '#f8f6f2',
-          200: '#efece6',
-          300: '#e2ded6',
+          50: '#ffffff',
+          100: '#f7f8fa',
+          200: '#f2f4f7',
+          300: '#e4e7ec',
         },
-        // Cool neutral text and rules.
+        // Text and rules, read on a white ground.
         slate: {
-          950: '#0a1020',
-          900: '#111a2e',
-          800: '#1e2a41',
-          700: '#33415c',
-          // Ramp tuned so 400, 500, and 600 all clear WCAG AA at small sizes
-          // against both navy-950 and the graphite panel surface.
-          600: '#7b8aa2',
-          500: '#8b99ae',
-          400: '#a1adbe',
-          300: '#b3bdcc',
-          200: '#d5dbe4',
-          100: '#e9edf2',
+          950: '#0b1220',
+          900: '#101828',
+          800: '#172033', // primary text
+          700: '#344054',
+          600: '#667085', // secondary text, and the lightest that clears AA small
+          500: '#8a94a6', // muted text, large or non-essential only
+          400: '#98a2b3',
+          300: '#b0b8c4',
+          200: '#d0d5dd', // strong border
+          100: '#e4e7ec', // border
+          50: '#f2f4f7',
         },
         // Muted cobalt. Primary accent.
         cobalt: {
@@ -70,43 +63,48 @@ const config: Config = {
           300: '#7fa9dd',
           200: '#b3cbeb',
           100: '#dde8f6',
+          50: '#f0f5fb', // analyst judgment ground
         },
-        // Restrained teal. Secondary accent for analytical emphasis.
+        // Restrained teal. Secondary analytical accent.
         teal: {
           900: '#0a2b2c',
           800: '#0f3f41',
-          700: '#145458',
-          600: '#186a6f',
-          500: '#1f858b',
-          400: '#3aa3a9',
-          300: '#6cc2c6',
-          200: '#a8dde0',
-          100: '#d8f0f1',
+          700: '#1d5f64',
+          600: '#2a7076',
+          500: '#347c82',
+          400: '#4f9aa0',
+          300: '#7fbcc0',
+          200: '#b3dade',
+          100: '#ddf0f1',
+          50: '#f0f8f8',
         },
-        // Financial state. Never the only signal.
+        // Financial state. Never the only carrier of meaning.
         positive: {
-          700: '#14603f',
-          600: '#1a7a50',
-          500: '#249c66',
-          400: '#48b585',
+          800: '#1b5a40',
+          700: '#20684a',
+          600: '#287a57',
+          500: '#2f8f66',
+          400: '#4faa83',
           200: '#a9dcc4',
-          100: '#dcf0e6',
+          100: '#edf7f2',
         },
         caution: {
-          700: '#7a5312',
-          600: '#9a6a18',
-          500: '#c08829',
-          400: '#d9a94f',
+          800: '#6f4a12',
+          700: '#7f5615',
+          600: '#946319',
+          500: '#b07c26',
+          400: '#cfa054',
           200: '#f0dcae',
-          100: '#faf1dd',
+          100: '#fff8e7',
         },
         risk: {
-          700: '#7d2320',
-          600: '#9c2c28',
-          500: '#bf3d38',
-          400: '#d46b66',
+          800: '#7d3333',
+          700: '#933b3b',
+          600: '#a64444',
+          500: '#c05a55',
+          400: '#d48b87',
           200: '#efc2bf',
-          100: '#fae4e3',
+          100: '#fff1f1',
         },
       },
       fontFamily: {
@@ -151,9 +149,10 @@ const config: Config = {
         prose: '68ch',
       },
       boxShadow: {
-        panel: '0 1px 2px rgba(7, 11, 20, 0.28), 0 8px 24px -12px rgba(7, 11, 20, 0.45)',
-        lift: '0 2px 4px rgba(7, 11, 20, 0.3), 0 16px 36px -16px rgba(7, 11, 20, 0.6)',
-        ring: '0 0 0 1px rgba(47, 107, 179, 0.4)',
+        panel: '0 1px 3px rgba(16, 24, 40, 0.04)',
+        lift: '0 2px 6px rgba(16, 24, 40, 0.07), 0 12px 24px -12px rgba(16, 24, 40, 0.10)',
+        nav: '0 1px 2px rgba(16, 24, 40, 0.05)',
+        ring: '0 0 0 1px rgba(47, 107, 179, 0.35)',
       },
       transitionTimingFunction: {
         standard: 'cubic-bezier(0.22, 0.61, 0.36, 1)',

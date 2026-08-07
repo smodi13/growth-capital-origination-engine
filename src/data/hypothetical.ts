@@ -22,13 +22,28 @@ export const hypotheticalProfile = {
     'A B2B enterprise SaaS platform selling workflow orchestration software to mid market and enterprise operations teams. The company sells annual subscriptions with a land and expand motion, has built a modest professional services practice around implementation, and is approaching the scale at which a growth financing decision becomes unavoidable.',
   stage: 'Approaching a Series C equivalent growth financing decision',
   capitalNeed: 20.0,
-  useOfProceeds: [
+  /**
+   * What the capital is actually for.
+   *
+   * These are the components of the sizing bridge, not a wish list. Product,
+   * sales hiring, international expansion, and working capital are deliberately
+   * absent: they are operating drivers already inside the forecast, so listing
+   * them here as well would present the same spending twice. Acquisition spend
+   * is absent because it is not modelled at all.
+   */
+  capitalUses: [
+    'Refinancing the existing term debt so the new facility sits in first position',
+    'Funding the cumulative operating burn produced by the forecast',
+    'Servicing interest and amortisation across the modelled period',
+    'Holding the minimum liquidity level the structure requires',
+    'Original issue discount and closing costs',
+  ],
+  /** Already inside the operating forecast. Never a separate use of proceeds. */
+  operatingDrivers: [
     'Product development across the orchestration and reporting modules',
     'Enterprise sales hiring to move upmarket from the mid market base',
     'International expansion into the United Kingdom and Germany',
     'Working capital to support lengthening enterprise payment terms',
-    'Selective acquisition of adjacent connector or template capability',
-    'Refinancing the limited existing term debt',
   ],
 } as const;
 
@@ -737,4 +752,186 @@ export const recommendation = {
   ],
   caveat:
     'This conclusion is conditional rather than certain. It holds if the company sustains growth close to the base case and if operating leverage arrives on the assumed schedule. Under the downside case the debt component becomes a constraint rather than an advantage, and the analysis below sets out where that boundary sits.',
+} as const;
+
+/* -------------------------------------------------------------------------- */
+/* Capital sizing bridge                                                       */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Why the plan needs USD 20 million.
+ *
+ * The bridge exists because the raise is larger than the cumulative operating
+ * burn, and a reader is entitled to know what the difference is for. It is not
+ * a second list of uses sitting alongside the forecast: product, sales,
+ * international expansion, and working capital are operating drivers already
+ * inside the burn line below, and counting them again here would double count
+ * them. Acquisition spend is not modelled at all.
+ *
+ * Values are taken from the Capital Structures and Downside Case sheets of the
+ * supplied workbook, which is the source of truth for every figure here.
+ */
+export const capitalSizing = {
+  lines: [
+    {
+      label: 'Existing debt refinanced',
+      value: 3.0,
+      note: 'Repaid at close so the new facility sits in first position.',
+    },
+    {
+      label: 'Base case cumulative operating burn',
+      value: 9.0,
+      note: 'The full modelled operating plan, including product, sales, international, and working capital.',
+    },
+    {
+      label: 'Base case debt service',
+      value: 7.7,
+      note: 'Interest and amortisation on the USD 12 million facility across the modelled period.',
+    },
+    {
+      label: 'Minimum ending cash',
+      value: 5.0,
+      note: 'The liquidity floor the structure is required to hold.',
+    },
+    {
+      label: 'Less beginning cash',
+      value: -8.0,
+      note: 'Cash already on the balance sheet at close.',
+    },
+    {
+      label: 'OID and financing friction',
+      value: 0.2,
+      note: 'Original issue discount and closing costs.',
+    },
+  ],
+  baseRequired: 16.9,
+  raised: 20.0,
+  baseHeadroom: 3.1,
+  downsideRequired: 24.6,
+  downsideShortfall: 4.6,
+  /** Uses that are inside the operating forecast and must not be added again. */
+  embeddedInForecast: [
+    'Product development',
+    'Sales and marketing hiring',
+    'International expansion',
+    'Working capital',
+  ],
+  notModelled: ['Acquisition spend'],
+} as const;
+
+/* -------------------------------------------------------------------------- */
+/* Credit framing                                                              */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * What kind of debt this is.
+ *
+ * EBITDA is negative through year four, so debt service coverage never reaches
+ * 1.0x inside the modelled period. That rules out a conventional cash flow loan
+ * and makes recurring revenue durability, not earnings, the thing the facility
+ * is underwritten against.
+ */
+export const creditFraming = {
+  headline: 'Recurring-revenue facility, not a conventional cash-flow loan',
+  rationale:
+    'EBITDA is negative through year four and debt service coverage stays below 1.0x for the whole modelled period. A lender cannot size this facility on earnings, so it is sized against recurring revenue durability, the liquidity floor, and the quality of the contracted base.',
+  mustBeConfirmed: [
+    'Contracted ARR against usage and month to month revenue',
+    'Gross and net retention at cohort level',
+    'Customer concentration across the top ten and top twenty accounts',
+    'Monthly cash burn and the minimum liquidity the business actually needs',
+  ],
+  standingRisks: [
+    'DSCR remains below 1.0x throughout the modelled period, so coverage is a warning metric rather than a covenant the business can meet',
+    'Refinancing risk at maturity remains material against USD 10.8 million outstanding and USD 1.0 million of year five unlevered free cash flow',
+  ],
+} as const;
+
+/* -------------------------------------------------------------------------- */
+/* Existing holder value                                                       */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * What each structure leaves with the people who already own the company.
+ *
+ * This is the calculation an earlier draft got wrong. Applying the dilution
+ * difference to a common exit equity value produced roughly USD 25 million and
+ * was incorrect, because the three structures do not share an exit equity
+ * value: each carries different cash and different remaining debt. Comparing
+ * proceeds structure by structure gives USD 9.7 million, and that is the figure
+ * the workbook and the memorandum both carry.
+ */
+export const existingHolderValue = {
+  rows: [
+    {
+      structure: 'Growth equity',
+      ownership: 0.828,
+      exitEquityValue: 282.5,
+      proceeds: 233.8,
+      incrementalVersusAllEquity: 0.0,
+    },
+    {
+      structure: 'Private credit',
+      ownership: 1.0,
+      exitEquityValue: 250.7,
+      proceeds: 250.7,
+      incrementalVersusAllEquity: 16.9,
+    },
+    {
+      structure: 'Selected blend',
+      ownership: 0.923,
+      exitEquityValue: 263.8,
+      proceeds: 243.5,
+      incrementalVersusAllEquity: 9.7,
+    },
+  ],
+  correction:
+    'The selected blend retains USD 9.7 million more for existing holders than the all equity case. An earlier draft stated USD 25 million. That figure applied the dilution difference to a common exit equity value and ignored the cash and the remaining debt each structure carries, so it overstated the benefit.',
+} as const;
+
+/* -------------------------------------------------------------------------- */
+/* Equity and debt mix sensitivity                                             */
+/* -------------------------------------------------------------------------- */
+
+export type MixStatus = 'FAIL' | 'BREACH' | 'HEADROOM';
+
+/**
+ * The same USD 20 million split six ways.
+ *
+ * The tension this table exposes is the most useful thing in the underwriting.
+ * The recommended 8 / 12 blend maximises base case returns and does not
+ * preserve the minimum cash level in the downside. Both facts are shown.
+ */
+export const mixSensitivity: {
+  equity: number;
+  debt: number;
+  dilution: number;
+  baseYear5Cash: number;
+  downsideYear5Cash: number;
+  status: MixStatus;
+  selected: boolean;
+}[] = [
+  { equity: 0, debt: 20, dilution: 0.0, baseYear5Cash: 2.9, downsideYear5Cash: -4.8, status: 'FAIL', selected: false },
+  { equity: 4, debt: 16, dilution: 0.04, baseYear5Cash: 5.5, downsideYear5Cash: -2.2, status: 'FAIL', selected: false },
+  { equity: 8, debt: 12, dilution: 0.077, baseYear5Cash: 8.1, downsideYear5Cash: 0.4, status: 'BREACH', selected: true },
+  { equity: 12, debt: 8, dilution: 0.111, baseYear5Cash: 10.8, downsideYear5Cash: 3.1, status: 'BREACH', selected: false },
+  { equity: 16, debt: 4, dilution: 0.143, baseYear5Cash: 13.4, downsideYear5Cash: 5.7, status: 'HEADROOM', selected: false },
+  { equity: 20, debt: 0, dilution: 0.172, baseYear5Cash: 16.0, downsideYear5Cash: 8.4, status: 'HEADROOM', selected: false },
+];
+
+export const MIX_STATUS_MEANING: Record<MixStatus, string> = {
+  FAIL: 'The downside case runs out of cash entirely.',
+  BREACH: 'The downside case survives but falls through the USD 5.0 million minimum cash level.',
+  HEADROOM: 'The downside case preserves the minimum cash level throughout.',
+};
+
+export const mixConclusion = {
+  selected:
+    'The USD 8 million equity and USD 12 million debt structure is the preliminary base case recommendation because it balances dilution against base case liquidity: it holds dilution at 7.7 percent and still ends year five with USD 8.1 million of cash.',
+  tension:
+    'It does not preserve the USD 5.0 million minimum cash level in the modelled downside case. Downside year five cash is USD 0.4 million and the threshold is breached in year four.',
+  threshold:
+    'At whole dollar equity increments, approximately USD 15 million of equity is required to preserve minimum downside liquidity. At the four million dollar increments tested above, the first structure with downside headroom is USD 16 million of equity alongside USD 4 million of debt.',
+  implication:
+    'A decision maker who places meaningful probability on the downside case should increase the equity component or require a committed liquidity backstop. This tension is not a defect in the recommendation. It is the boundary of it, and it is stated rather than hidden.',
 } as const;

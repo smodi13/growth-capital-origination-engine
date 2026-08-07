@@ -338,8 +338,8 @@ describe('static deployment', () => {
     });
 
     // The downloads must be copied into the deployable output.
-    ['Enterprise_Software_Growth_Capital_Model.xlsx',
-      'Enterprise_Software_Origination_and_Underwriting_Case.pdf'].forEach((f) => {
+    ['Enterprise Software Growth Capital Model.xlsx',
+      'Enterprise Software Origination and Underwriting Case.pdf'].forEach((f) => {
       const p = resolve(OUT, 'downloads', f);
       expect(existsSync(p), `${f} missing from build output`).toBe(true);
       expect(statSync(p).size).toBeGreaterThan(10_000);

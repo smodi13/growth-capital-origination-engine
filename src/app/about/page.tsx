@@ -22,13 +22,13 @@ export default function AboutPage() {
 
       <Section title="Disclosure">
         <div className="panel p-5">
-          <p className="text-sm leading-relaxed text-slate-100">{DISCLOSURE}</p>
+          <p className="text-sm leading-relaxed text-slate-800">{DISCLOSURE}</p>
         </div>
       </Section>
 
       <Section title="Built by Sahil Modi">
         <div className="panel p-5">
-          <p className="text-sm leading-relaxed text-slate-300">
+          <p className="text-sm leading-relaxed text-slate-700">
             I built this to demonstrate how I would source, qualify, contact, and underwrite B2B
             enterprise software companies for a growth equity or private credit team. The research
             framework, the scoring logic, the evidence rules, the underwriting structure, and the
@@ -37,7 +37,7 @@ export default function AboutPage() {
             record does not support it.
           </p>
 
-          <div className="mt-5 grid gap-4 border-t border-white/[0.07] pt-5 sm:grid-cols-3">
+          <div className="mt-5 grid gap-4 border-t border-slate-100 pt-5 sm:grid-cols-3">
             <div>
               <p className="label">Email</p>
               <p className="mt-1.5 text-sm">
@@ -65,10 +65,10 @@ export default function AboutPage() {
       <Section title="Downloads" description="Both artefacts are static files committed to the repository.">
         <div className="grid gap-3 sm:grid-cols-2">
           {[DOWNLOADS.model, DOWNLOADS.memo].map((d) => (
-            <a key={d.href} href={d.href} className="panel block min-w-0 p-4 transition-colors hover:border-white/10 hover:bg-graphite-800">
-              <p className="text-sm font-semibold text-ivory-50">{d.title}</p>
-              <p className="mt-1.5 text-xs leading-relaxed text-slate-400">{d.description}</p>
-              <p className="num mt-3 break-all text-cobalt-400">{d.label}</p>
+            <a key={d.href} href={d.href} className="panel block min-w-0 p-4 transition-colors hover:border-slate-100 hover:bg-ivory-100">
+              <p className="text-sm font-semibold text-slate-900">{d.title}</p>
+              <p className="mt-1.5 text-xs leading-relaxed text-slate-600">{d.description}</p>
+              <p className="num mt-3 break-all text-cobalt-600">{d.label}</p>
             </a>
           ))}
         </div>
@@ -77,8 +77,8 @@ export default function AboutPage() {
       <Section title="Data policy">
         <div className="grid gap-3 lg:grid-cols-2">
           <div className="panel p-4">
-            <p className="text-sm font-semibold text-slate-100">What is in the data</p>
-            <ul className="mt-3 space-y-2 text-xs leading-relaxed text-slate-400">
+            <p className="text-sm font-semibold text-slate-800">What is in the data</p>
+            <ul className="mt-3 space-y-2 text-xs leading-relaxed text-slate-600">
               <li>
                 {companies.length} real, privately held, independently operating B2B enterprise
                 software companies, verified as at 5 August 2026.
@@ -99,8 +99,8 @@ export default function AboutPage() {
           </div>
 
           <div className="panel p-4">
-            <p className="text-sm font-semibold text-slate-100">What is deliberately absent</p>
-            <ul className="mt-3 space-y-2 text-xs leading-relaxed text-slate-400">
+            <p className="text-sm font-semibold text-slate-800">What is deliberately absent</p>
+            <ul className="mt-3 space-y-2 text-xs leading-relaxed text-slate-600">
               <li>
                 No estimated ARR, revenue, retention, gross margin, EBITDA, burn, runway, valuation,
                 customer concentration, debt balance, covenants, profitability, founder ownership, or
@@ -132,12 +132,12 @@ export default function AboutPage() {
             { t: 'No analytics or telemetry', b: 'No visitor data is collected or transmitted. There is no tracking script on any page.' },
           ].map((x) => (
             <div key={x.t} className="panel p-4">
-              <p className="text-sm font-semibold text-slate-100">{x.t}</p>
-              <p className="mt-2 text-xs leading-relaxed text-slate-400">{x.b}</p>
+              <p className="text-sm font-semibold text-slate-800">{x.t}</p>
+              <p className="mt-2 text-xs leading-relaxed text-slate-600">{x.b}</p>
             </div>
           ))}
         </div>
-        <p className="mt-3 max-w-3xl text-xs leading-relaxed text-slate-500">
+        <p className="mt-3 max-w-3xl text-xs leading-relaxed text-slate-600">
           Each of these properties is asserted by an automated test that inspects the source tree and
           the production build output, so a future change that violated one would fail the test
           suite rather than reach deployment quietly.
@@ -146,7 +146,7 @@ export default function AboutPage() {
 
       <Section title="Development disclosure">
         <div className="panel p-5">
-          <p className="text-sm leading-relaxed text-slate-200">{DEVELOPMENT_DISCLOSURE}</p>
+          <p className="text-sm leading-relaxed text-slate-800">{DEVELOPMENT_DISCLOSURE}</p>
         </div>
       </Section>
 

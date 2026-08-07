@@ -83,6 +83,27 @@ export interface Claim {
   sourceIds: string[];
   /** True when the claim contains a number that a reader may act on. */
   quantified: boolean;
+  /**
+   * The most recent date the figure is known to describe.
+   *
+   * This is deliberately not the publication date. A January 2025 announcement
+   * reporting a fiscal 2024 result describes a period that ended in December
+   * 2024, and a reader deciding whether to rely on the figure needs the
+   * measurement date rather than the date a press release went out.
+   *
+   * The rule applied across this research is:
+   *
+   *   asOf = min(period end stated by the source, publication date)
+   *
+   * Where a source states a measurement period that closed before it published,
+   * the period end is used. Where it states no period, the publication date is
+   * used, because that is the latest date on which the figure was asserted to be
+   * current. Taking the minimum means the date never claims more freshness than
+   * the source supports.
+   *
+   * Required on every quantified claim, and enforced by an automated test.
+   */
+  asOf?: string;
 }
 
 export type DiscoveryChannel =

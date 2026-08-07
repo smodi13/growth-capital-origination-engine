@@ -15,23 +15,42 @@ export const DISCLOSURE =
 export const DEVELOPMENT_DISCLOSURE =
   'Sahil Modi designed the research framework, scoring logic, underwriting structure, and investment analysis. AI-assisted development tools were used to support coding, research organization, testing, and document production. Every company record and material claim was reviewed against dated public sources.';
 
+/**
+ * What the emerging classification does and does not mean.
+ *
+ * Held as a single constant because it appears verbatim on the universe page,
+ * the homepage priority section, the methodology page, and the classification
+ * badge on every company page. A test asserts all four render this exact text,
+ * so the four surfaces cannot drift into saying four different things.
+ */
+export const CLASSIFICATION_NOTE =
+  'Emerging targets are selected for origination relevance and timeliness. The classification does not increase their investment score or imply stronger publicly observable fundamentals than established benchmark companies.';
+
 export const PIPELINE_DISCLOSURE =
   'Pipeline statuses are demonstration workflow data and do not imply actual contact, meetings, or investment activity.';
 
+/**
+ * The two downloadable work products.
+ *
+ * The files on disk carry spaces in their names, so `href` is percent-encoded
+ * for the URL while `label` stays exactly as the file is named. Those two must
+ * not be conflated: a reader saving the file should see the same name the
+ * repository holds, and a browser requesting it needs the encoded form.
+ */
 export const DOWNLOADS = {
   model: {
-    href: '/downloads/Enterprise_Software_Growth_Capital_Model.xlsx',
-    label: 'Enterprise_Software_Growth_Capital_Model.xlsx',
+    href: '/downloads/Enterprise%20Software%20Growth%20Capital%20Model.xlsx',
+    label: 'Enterprise Software Growth Capital Model.xlsx',
     title: 'Excel underwriting model',
     description:
-      'Fourteen sheets of live formulas covering the ARR bridge, operating forecast, SaaS metrics, three capital structures, debt schedule, returns, sensitivities, and a downside case.',
+      'A formula-driven SaaS growth-capital model covering the ARR bridge, operating forecast, SaaS metrics, capital sizing, growth equity, recurring-revenue credit, blended capital, debt schedules, returns, sensitivities, downside analysis, and model-control checks.',
   },
   memo: {
-    href: '/downloads/Enterprise_Software_Origination_and_Underwriting_Case.pdf',
-    label: 'Enterprise_Software_Origination_and_Underwriting_Case.pdf',
+    href: '/downloads/Enterprise%20Software%20Origination%20and%20Underwriting%20Case.pdf',
+    label: 'Enterprise Software Origination and Underwriting Case.pdf',
     title: 'PDF investment memorandum',
     description:
-      'A structured memorandum covering the origination framework, the hypothetical SaaS quality assessment, three structure alternatives, key risks, and a preliminary recommendation.',
+      'A six-page underwriting memorandum covering the operating case, SaaS quality, capital sizing, structure economics, existing-holder value, downside sensitivity, key risks, and additional diligence.',
   },
 } as const;
 

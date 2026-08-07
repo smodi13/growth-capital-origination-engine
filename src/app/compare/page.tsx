@@ -72,8 +72,8 @@ export default function ComparePage() {
             },
           ].map((x) => (
             <div key={x.t} className="panel p-4">
-              <p className="text-sm font-semibold text-slate-100">{x.t}</p>
-              <p className="mt-2 text-xs leading-relaxed text-slate-400">{x.b}</p>
+              <p className="text-sm font-semibold text-slate-800">{x.t}</p>
+              <p className="mt-2 text-xs leading-relaxed text-slate-600">{x.b}</p>
             </div>
           ))}
         </div>

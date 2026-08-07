@@ -75,10 +75,10 @@ export default function SourcesPage() {
             return (
               <div key={c.slug} className="panel p-4">
                 <div className="flex flex-wrap items-baseline justify-between gap-3">
-                  <Link href={`/companies/${c.slug}/`} className="text-sm font-semibold text-ivory-50 hover:text-cobalt-300">
+                  <Link href={`/companies/${c.slug}/`} className="text-sm font-semibold text-slate-900 hover:text-cobalt-600">
                     {c.name}
                   </Link>
-                  <p className="text-2xs text-slate-500">
+                  <p className="text-2xs text-slate-600">
                     {rows.filter((r) => r.role === 'primary').length} primary ·{' '}
                     {rows.filter((r) => r.role === 'corroborating').length} corroborating · last
                     reviewed {formatDate(c.lastReviewed)}
@@ -87,19 +87,19 @@ export default function SourcesPage() {
 
                 <ul className="mt-3 space-y-2.5">
                   {rows.map((r) => (
-                    <li key={`${r.slug}-${r.id}`} className="border-t border-white/[0.06] pt-2.5">
+                    <li key={`${r.slug}-${r.id}`} className="border-t border-slate-100 pt-2.5">
                       <div className="flex flex-wrap items-baseline gap-2">
                         <span
                           className={`rounded border px-1.5 py-0.5 text-2xs font-medium ${
                             r.role === 'primary'
-                              ? 'border-cobalt-600/45 bg-cobalt-700/25 text-cobalt-300'
-                              : 'border-white/10 bg-graphite-800 text-slate-400'
+                              ? 'border-cobalt-200 bg-cobalt-50 text-cobalt-600'
+                              : 'border-slate-100 bg-ivory-100 text-slate-600'
                           }`}
                         >
                           {r.role === 'primary' ? 'Primary' : 'Corroborating'}
                         </span>
                         {r.isReproduction ? (
-                          <span className="rounded border border-caution-500/40 bg-caution-700/18 px-1.5 py-0.5 text-2xs font-medium text-caution-200">
+                          <span className="rounded border border-caution-200 bg-caution-700/18 px-1.5 py-0.5 text-2xs font-medium text-caution-700">
                             Press release reproduction
                           </span>
                         ) : null}
@@ -108,11 +108,11 @@ export default function SourcesPage() {
                         </span>
                       </div>
                       <p className="mt-1">
-                        <ExternalLink href={r.url} className="text-xs font-medium text-cobalt-300 hover:text-cobalt-200">
+                        <ExternalLink href={r.url} className="text-xs font-medium text-cobalt-600 hover:text-cobalt-700">
                           {r.title}
                         </ExternalLink>
                       </p>
-                      <p className="mt-0.5 text-2xs text-slate-500">{r.publisher}</p>
+                      <p className="mt-0.5 text-2xs text-slate-600">{r.publisher}</p>
                     </li>
                   ))}
                 </ul>

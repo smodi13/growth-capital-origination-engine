@@ -417,8 +417,8 @@ export function UniverseTable({ rows }: { rows: UniverseRow[] }) {
 
   return (
     <div>
-      {/* -------------------------------------------------------- presets -- */}
-      <div>
+      {/* -------------------------------------------------------- toolbar -- */}
+      <div className="rounded-xl border border-slate-100 bg-ivory-100 p-4 sm:p-5">
         <p className="label">Saved views</p>
         <div className="mt-2.5 flex flex-wrap gap-1.5">
           {PRESETS.map((p) => {
@@ -432,8 +432,8 @@ export function UniverseTable({ rows }: { rows: UniverseRow[] }) {
                 title={p.description}
                 className={`rounded-md border px-2.5 py-1.5 text-2xs font-medium transition-colors duration-200 ${focusRing} ${
                   on
-                    ? 'border-cobalt-500 bg-cobalt-600/25 text-cobalt-100'
-                    : 'border-white/10 bg-white/[0.03] text-slate-400 hover:border-white/20 hover:text-slate-100'
+                    ? 'border-cobalt-500 bg-cobalt-600/25 text-cobalt-700'
+                    : 'border-slate-100 bg-ivory-100 text-slate-600 hover:border-slate-200 hover:text-slate-800'
                 }`}
               >
                 {p.label}
@@ -442,152 +442,161 @@ export function UniverseTable({ rows }: { rows: UniverseRow[] }) {
           })}
         </div>
         {activePreset ? (
-          <p className="mt-2 text-2xs text-slate-500">{activePreset.description}</p>
+          <p className="mt-2 text-2xs text-slate-600">{activePreset.description}</p>
+        ) : null}
+
+        {/* -------------------------------------------------------- filters -- */}
+        <div className="mt-5 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-6">
+          <label className="block lg:col-span-2">
+            <span className="label">Search</span>
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Company, sector, city, stage, signal"
+              className="field mt-1.5"
+            />
+          </label>
+
+          {[
+            { label: 'Sector', value: sector, set: setSector, options: sectors },
+            {
+              label: 'Freshness',
+              value: freshness,
+              set: setFreshness,
+              options: ['All', 'Fresh', 'Recent', 'Established'],
+            },
+            {
+              label: 'Confidence',
+              value: confidence,
+              set: setConfidence,
+              options: ['All', 'High', 'Moderate', 'Limited'],
+            },
+            {
+              label: 'Classification',
+              value: classification,
+              set: setClassification,
+              options: ['All', 'Benchmark growth company', 'Emerging origination target'],
+            },
+          ].map((f) => (
+            <label key={f.label} className="block">
+              <span className="label">{f.label}</span>
+              <select
+                value={f.value}
+                onChange={(e) => f.set(e.target.value)}
+                className="field mt-1.5"
+              >
+                {f.options.map((o) => (
+                  <option key={o}>{o}</option>
+                ))}
+              </select>
+            </label>
+          ))}
+        </div>
+
+        {/* ------------------------------------------------------- controls -- */}
+        <div className="mt-3.5 flex flex-wrap items-center justify-between gap-3">
+          <p className="text-2xs text-slate-600">
+            Showing <span className="num text-slate-700">{filtered.length}</span> of {rows.length}
+            {activeFilterCount > 0 ? (
+              <span className="chip ml-2 border-cobalt-200 bg-cobalt-50 text-cobalt-700">
+                {activeFilterCount} filter{activeFilterCount === 1 ? '' : 's'} active
+              </span>
+            ) : null}
+          </p>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <div
+              className="inline-flex rounded-md border border-slate-100 p-0.5"
+              role="group"
+              aria-label="Table density"
+            >
+              {[
+                { id: false, label: 'Expanded' },
+                { id: true, label: 'Compact' },
+              ].map((d) => (
+                <button
+                  key={d.label}
+                  type="button"
+                  onClick={() => setDense(d.id)}
+                  aria-pressed={dense === d.id}
+                  className={`rounded px-2.5 py-1 text-2xs font-medium transition-colors ${focusRing} ${
+                    dense === d.id
+                      ? 'bg-ivory-200 text-slate-800'
+                      : 'text-slate-600 hover:text-slate-700'
+                  }`}
+                >
+                  {d.label}
+                </button>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowColumns((v) => !v)}
+              aria-expanded={showColumns}
+              className={`rounded-md border border-slate-100 px-2.5 py-1.5 text-2xs font-medium text-slate-600 hover:text-slate-800 ${focusRing}`}
+            >
+              Columns
+            </button>
+
+            <button
+              type="button"
+              onClick={reset}
+              disabled={activeFilterCount === 0}
+              className={`rounded-md border border-slate-100 px-2.5 py-1.5 text-2xs font-medium transition-colors ${focusRing} ${
+                activeFilterCount === 0
+                  ? 'cursor-not-allowed text-slate-600'
+                  : 'text-slate-600 hover:text-slate-800'
+              }`}
+            >
+              Reset
+            </button>
+          </div>
+        </div>
+
+        {showColumns ? (
+          <div className="panel mt-3 p-3">
+            <p className="label">Visible columns</p>
+            <div className="mt-2.5 flex flex-wrap gap-3">
+              {COLUMNS.map((c) => (
+                <label
+                  key={c.key}
+                  className="inline-flex items-center gap-1.5 text-2xs text-slate-700"
+                >
+                  <input
+                    type="checkbox"
+                    checked={!hidden.has(c.key)}
+                    disabled={c.key === 'company'}
+                    onChange={() => {
+                      const next = new Set(hidden);
+                      if (next.has(c.key)) next.delete(c.key);
+                      else next.add(c.key);
+                      apply({ hidden: [...next] });
+                    }}
+                    className="h-3 w-3 accent-cobalt-500"
+                  />
+                  {c.label}
+                </label>
+              ))}
+            </div>
+          </div>
         ) : null}
       </div>
 
-      {/* -------------------------------------------------------- filters -- */}
-      <div className="mt-5 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-6">
-        <label className="block lg:col-span-2">
-          <span className="label">Search</span>
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Company, sector, city, stage, signal"
-            className="field mt-1.5"
-          />
-        </label>
-
-        {[
-          { label: 'Sector', value: sector, set: setSector, options: sectors },
-          {
-            label: 'Freshness',
-            value: freshness,
-            set: setFreshness,
-            options: ['All', 'Fresh', 'Recent', 'Established'],
-          },
-          {
-            label: 'Confidence',
-            value: confidence,
-            set: setConfidence,
-            options: ['All', 'High', 'Moderate', 'Limited'],
-          },
-          {
-            label: 'Classification',
-            value: classification,
-            set: setClassification,
-            options: ['All', 'Benchmark growth company', 'Emerging origination target'],
-          },
-        ].map((f) => (
-          <label key={f.label} className="block">
-            <span className="label">{f.label}</span>
-            <select value={f.value} onChange={(e) => f.set(e.target.value)} className="field mt-1.5">
-              {f.options.map((o) => (
-                <option key={o}>{o}</option>
-              ))}
-            </select>
-          </label>
-        ))}
-      </div>
-
-      {/* ------------------------------------------------------- controls -- */}
-      <div className="mt-3.5 flex flex-wrap items-center justify-between gap-3">
-        <p className="text-2xs text-slate-500">
-          Showing <span className="num text-slate-300">{filtered.length}</span> of {rows.length}
-          {activeFilterCount > 0 ? (
-            <span className="chip ml-2 border-cobalt-500/45 bg-cobalt-700/25 text-cobalt-200">
-              {activeFilterCount} filter{activeFilterCount === 1 ? '' : 's'} active
-            </span>
-          ) : null}
-        </p>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <div
-            className="inline-flex rounded-md border border-white/10 p-0.5"
-            role="group"
-            aria-label="Table density"
-          >
-            {[
-              { id: false, label: 'Expanded' },
-              { id: true, label: 'Compact' },
-            ].map((d) => (
-              <button
-                key={d.label}
-                type="button"
-                onClick={() => setDense(d.id)}
-                aria-pressed={dense === d.id}
-                className={`rounded px-2.5 py-1 text-2xs font-medium transition-colors ${focusRing} ${
-                  dense === d.id
-                    ? 'bg-white/[0.08] text-slate-100'
-                    : 'text-slate-500 hover:text-slate-300'
-                }`}
-              >
-                {d.label}
-              </button>
-            ))}
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setShowColumns((v) => !v)}
-            aria-expanded={showColumns}
-            className={`rounded-md border border-white/10 px-2.5 py-1.5 text-2xs font-medium text-slate-400 hover:text-slate-100 ${focusRing}`}
-          >
-            Columns
-          </button>
-
-          <button
-            type="button"
-            onClick={reset}
-            disabled={activeFilterCount === 0}
-            className={`rounded-md border border-white/10 px-2.5 py-1.5 text-2xs font-medium transition-colors ${focusRing} ${
-              activeFilterCount === 0
-                ? 'cursor-not-allowed text-slate-600'
-                : 'text-slate-400 hover:text-slate-100'
-            }`}
-          >
-            Reset
-          </button>
-        </div>
-      </div>
-
-      {showColumns ? (
-        <div className="panel mt-3 p-3">
-          <p className="label">Visible columns</p>
-          <div className="mt-2.5 flex flex-wrap gap-3">
-            {COLUMNS.map((c) => (
-              <label
-                key={c.key}
-                className="inline-flex items-center gap-1.5 text-2xs text-slate-300"
-              >
-                <input
-                  type="checkbox"
-                  checked={!hidden.has(c.key)}
-                  disabled={c.key === 'company'}
-                  onChange={() => {
-                    const next = new Set(hidden);
-                    if (next.has(c.key)) next.delete(c.key);
-                    else next.add(c.key);
-                    apply({ hidden: [...next] });
-                  }}
-                  className="h-3 w-3 accent-cobalt-500"
-                />
-                {c.label}
-              </label>
-            ))}
-          </div>
-        </div>
-      ) : null}
-
       {/* --------------------------------------------------------- desktop -- */}
-      <div className="table-scroll mt-4 hidden lg:block" tabIndex={0} role="region" aria-label="Scrollable table">
+      <div
+        className="table-scroll mt-4 hidden lg:block"
+        tabIndex={0}
+        role="region"
+        aria-label="Scrollable table"
+      >
         <table className="w-full min-w-[62rem] border-collapse text-left">
           <caption className="sr-only">
             Private company sourcing universe, sortable by column
           </caption>
           <thead className="thead-sticky">
-            <tr className="border-b border-white/[0.09]">
+            <tr className="border-b border-slate-200">
               {visible.map((c) => (
                 <th
                   key={c.key}
@@ -601,11 +610,11 @@ export function UniverseTable({ rows }: { rows: UniverseRow[] }) {
                     <button
                       type="button"
                       onClick={() => toggleSort(c.sort as SortKey)}
-                      className={`label rounded hover:text-slate-200 ${focusRing}`}
+                      className={`label rounded hover:text-slate-800 ${focusRing}`}
                     >
                       {c.tip ? <Term definition={c.tip}>{c.label}</Term> : c.label}
                       {sortKey === c.sort ? (
-                        <span aria-hidden="true" className="ml-1 text-cobalt-400">
+                        <span aria-hidden="true" className="ml-1 text-cobalt-600">
                           {asc ? '↑' : '↓'}
                         </span>
                       ) : null}
@@ -623,7 +632,7 @@ export function UniverseTable({ rows }: { rows: UniverseRow[] }) {
             {filtered.map((r) => (
               <tr
                 key={r.slug}
-                className="row-hover border-b border-white/[0.06]"
+                className="row-hover border-b border-slate-100"
                 onMouseEnter={() => setHovered(r.slug)}
                 onMouseLeave={() => setHovered((h) => (h === r.slug ? null : h))}
               >
@@ -633,7 +642,7 @@ export function UniverseTable({ rows }: { rows: UniverseRow[] }) {
                       <>
                         <Link
                           href={`/companies/${r.slug}/`}
-                          className={`rounded font-semibold text-ivory-50 hover:text-cobalt-200 ${focusRing}`}
+                          className={`rounded font-semibold text-slate-900 hover:text-cobalt-700 ${focusRing}`}
                         >
                           <Highlight text={r.name} query={query} />
                         </Link>
@@ -641,7 +650,7 @@ export function UniverseTable({ rows }: { rows: UniverseRow[] }) {
                           <Highlight text={r.headquarters.split(',')[0]} query={query} />
                         </p>
                         {hovered === r.slug && !dense ? (
-                          <p className="mt-1.5 max-w-[24rem] text-2xs leading-relaxed text-slate-500">
+                          <p className="mt-1.5 max-w-[24rem] text-2xs leading-relaxed text-slate-600">
                             {r.whyEntered.slice(0, 150)}
                             {r.whyEntered.length > 150 ? '...' : ''}
                           </p>
@@ -651,7 +660,7 @@ export function UniverseTable({ rows }: { rows: UniverseRow[] }) {
                       <ClassificationBadge value={r.classification} compact />
                     ) : c.key === 'sector' ? (
                       <>
-                        <p className="text-slate-300">
+                        <p className="text-slate-700">
                           <Highlight text={r.sector} query={query} />
                         </p>
                         <p className="mt-0.5 text-2xs text-slate-600">{r.stage}</p>
@@ -662,20 +671,20 @@ export function UniverseTable({ rows }: { rows: UniverseRow[] }) {
                         <p className="num mt-1 text-2xs text-slate-600">{r.signalDate}</p>
                       </>
                     ) : c.key === 'score' ? (
-                      <span className="num text-sm font-semibold text-ivory-50">
+                      <span className="num text-sm font-semibold text-slate-900">
                         {r.score.toFixed(1)}
                       </span>
                     ) : c.key === 'fit' ? (
-                      <span className="num text-slate-300">
+                      <span className="num text-slate-700">
                         {r.equityFit} <span className="text-slate-600">/</span> {r.debtFit}{' '}
                         <span className="text-slate-600">/</span> {r.blendedFit}
                       </span>
                     ) : c.key === 'readiness' ? (
                       <ReadinessBadge value={r.readiness} />
                     ) : c.key === 'gaps' ? (
-                      <span className="num text-slate-400">{r.outstandingMetrics}</span>
+                      <span className="num text-slate-600">{r.outstandingMetrics}</span>
                     ) : c.key === 'channel' ? (
-                      <span className="text-slate-400">
+                      <span className="text-slate-600">
                         <Highlight text={r.channel} query={query} />
                       </span>
                     ) : (
@@ -697,15 +706,15 @@ export function UniverseTable({ rows }: { rows: UniverseRow[] }) {
               <div className="min-w-0">
                 <Link
                   href={`/companies/${r.slug}/`}
-                  className={`rounded font-display text-base font-semibold text-ivory-50 ${focusRing}`}
+                  className={`rounded font-display text-base font-semibold text-slate-900 ${focusRing}`}
                 >
                   <Highlight text={r.name} query={query} />
                 </Link>
-                <p className="mt-1 text-2xs text-slate-500">
+                <p className="mt-1 text-2xs text-slate-600">
                   {r.sector} <span className="text-slate-600">/</span> {r.stage}
                 </p>
               </div>
-              <span className="num shrink-0 text-xl font-semibold text-ivory-50">
+              <span className="num shrink-0 text-xl font-semibold text-slate-900">
                 {r.score.toFixed(1)}
               </span>
             </div>
@@ -714,7 +723,7 @@ export function UniverseTable({ rows }: { rows: UniverseRow[] }) {
               <FreshnessBadge value={r.freshness} />
               <ConfidenceBadge value={r.confidence} />
             </div>
-            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-white/[0.06] pt-3 text-2xs text-slate-500">
+            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-slate-100 pt-3 text-2xs text-slate-600">
               <span className="num">
                 E {r.equityFit} / D {r.debtFit} / B {r.blendedFit}
               </span>
@@ -728,10 +737,10 @@ export function UniverseTable({ rows }: { rows: UniverseRow[] }) {
       {/* ----------------------------------------------------- empty state -- */}
       {filtered.length === 0 ? (
         <div className="panel mt-6 px-6 py-12 text-center">
-          <p className="font-display text-base font-semibold text-ivory-50">
+          <p className="font-display text-base font-semibold text-slate-900">
             No companies match these filters
           </p>
-          <p className="mx-auto mt-2 max-w-sm text-xs leading-relaxed text-slate-400">
+          <p className="mx-auto mt-2 max-w-sm text-xs leading-relaxed text-slate-600">
             The universe holds {rows.length} verified companies. Try widening the sector or
             confidence filter, or clear the saved view to start again.
           </p>

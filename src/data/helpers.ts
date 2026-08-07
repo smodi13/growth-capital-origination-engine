@@ -12,8 +12,9 @@ export function claim(
   provenance: Provenance,
   sourceIds: string[],
   quantified = false,
+  asOf?: string,
 ): Claim {
-  return { statement, provenance, sourceIds, quantified };
+  return { statement, provenance, sourceIds, quantified, asOf };
 }
 
 /**

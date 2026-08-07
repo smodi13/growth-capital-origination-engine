@@ -9,7 +9,7 @@ import {
   topPriorities,
   totalSources,
 } from '@/lib/derived';
-import { DISCLOSURE, DEVELOPMENT_DISCLOSURE, DOWNLOADS, SITE } from '@/lib/site';
+import { CLASSIFICATION_NOTE, DISCLOSURE, DEVELOPMENT_DISCLOSURE, DOWNLOADS, SITE } from '@/lib/site';
 import {
   blendedCapitalCase,
   growthEquityCase,
@@ -24,42 +24,49 @@ import { CompanyCard } from '@/components/CompanyCard';
 import { CapitalFlowBackground } from '@/components/CapitalFlowBackground';
 import { CountUp, HeroReveal, Reveal } from '@/components/motion';
 import { WorkflowDiagram } from '@/components/home/WorkflowDiagram';
+import { OriginationFlow, type FlowStage } from '@/components/home/OriginationFlow';
 import { StructureSwitcher, type StructureView } from '@/components/home/StructureSwitcher';
 
 const pct = (n: number, dp = 1) => `${(n * 100).toFixed(dp)}%`;
 
 /* --------------------------------------------------------------- workflow -- */
 
-const WORKFLOW = [
+const WORKFLOW: FlowStage[] = [
   {
     n: '01',
     title: 'Discover',
     body: 'Companies enter through one dated public event: a financing, a disclosed credit facility, an executive appointment, a product launch, a customer win, or independent analyst research.',
+    output: 'Sourcing signal',
   },
   {
     n: '02',
     title: 'Verify',
     body: 'Private status, founders, headquarters, and financing are checked against first party sources. Candidates that fail are removed and recorded rather than quietly replaced.',
+    output: 'Verified company record',
   },
   {
     n: '03',
     title: 'Qualify',
     body: 'Every claim is classified by provenance. Evidence that is not sufficiently supported earns zero scoring weight, which the engine enforces in code rather than by convention.',
+    output: 'Origination score',
   },
   {
     n: '04',
     title: 'Contact',
     body: 'Executive outreach is drafted against the company actual product, financing history, and visible capital position, with three qualification questions and a defined next step.',
+    output: 'Executive outreach',
   },
   {
     n: '05',
     title: 'Underwrite',
     body: 'A hypothetical SaaS company is modelled end to end, with a live Excel workbook and a written memorandum carrying the operating case, the downside, and the recommendation.',
+    output: 'Financial model',
   },
   {
     n: '06',
     title: 'Structure',
     body: 'Growth equity, private credit, and blended capital are compared on identical operating assumptions, so every difference in outcome is caused by the structure.',
+    output: 'Capital recommendation',
   },
 ];
 
@@ -162,7 +169,7 @@ export default function HomePage() {
   return (
     <div>
       {/* ============================================================= Hero == */}
-      <section className="relative isolate overflow-hidden border-b border-white/[0.07]">
+      <section className="relative isolate overflow-hidden border-b border-slate-100">
         <CapitalFlowBackground />
 
         <div className="relative mx-auto w-full max-w-[86rem] px-4 pb-16 pt-14 sm:px-6 sm:pb-20 sm:pt-20 lg:px-8">
@@ -173,7 +180,7 @@ export default function HomePage() {
               </HeroReveal>
 
               <HeroReveal index={1}>
-                <h1 className="mt-4 max-w-[15ch] font-display text-hero font-semibold text-ivory-50">
+                <h1 className="mt-4 max-w-[15ch] font-display text-hero font-semibold text-slate-900">
                   Source, qualify, and underwrite B2B software companies.
                 </h1>
               </HeroReveal>
@@ -237,11 +244,11 @@ export default function HomePage() {
               },
               { label: 'Dated sources', value: totalSources, sub: 'Primary and corroborating' },
               { label: 'Capital structures', value: 3, sub: 'Equity, credit, blended' },
-              { label: 'Excel model sheets', value: 14, sub: 'All live formulas' },
+              { label: 'Excel model sheets', value: 16, sub: 'Formula-driven outputs' },
               { label: 'Enumerated data gaps', value: TOTAL_GAPS, sub: 'Never estimated' },
             ].map((s, i) => (
               <Reveal key={s.label} index={i} stagger={55} className="panel px-4 py-4">
-                <p className="num text-3xl font-semibold text-ivory-50">
+                <p className="num text-3xl font-semibold text-slate-900">
                   <CountUp value={s.value} />
                 </p>
                 <p className="label mt-2">{s.label}</p>
@@ -254,24 +261,9 @@ export default function HomePage() {
         {/* ===================================================== Workflow == */}
         <Section
           title="How origination runs"
-          description="Six stages, each producing an artefact the next stage can audit."
+          description="Six stages, each producing a named artefact the next stage can audit."
         >
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {WORKFLOW.map((w, i) => (
-              <Reveal
-                key={w.n}
-                index={i}
-                stagger={50}
-                className="panel p-5 transition-colors duration-200 hover:border-white/15"
-              >
-                <div className="flex items-baseline gap-3">
-                  <span className="num text-sm font-semibold text-cobalt-400">{w.n}</span>
-                  <h3 className="font-display text-base font-semibold text-ivory-50">{w.title}</h3>
-                </div>
-                <p className="mt-3 text-xs leading-relaxed text-slate-400">{w.body}</p>
-              </Reveal>
-            ))}
-          </div>
+          <OriginationFlow stages={WORKFLOW} />
         </Section>
 
         {/* ============================================ Priority companies == */}
@@ -291,6 +283,9 @@ export default function HomePage() {
               </Reveal>
             ))}
           </div>
+          <p className="mt-4 border-t border-slate-100 pt-4 text-2xs leading-relaxed text-slate-600">
+            {CLASSIFICATION_NOTE}
+          </p>
         </Section>
 
         {/* =============================================== Disclosure gaps == */}
@@ -314,7 +309,7 @@ export default function HomePage() {
                 every record enumerates it, and the scoring engine refuses to award positive weight
                 to anything the public record does not establish.
               </p>
-              <p className="mt-5 border-t border-ivory-300 pt-4 text-xs leading-relaxed text-slate-700">
+              <p className="mt-5 border-t border-slate-100 pt-4 text-xs leading-relaxed text-slate-700">
                 Across {companies.length} companies there are{' '}
                 <span className="num font-semibold text-slate-900">{TOTAL_GAPS}</span> separately
                 enumerated gaps. That number is meant to be uncomfortable. It is the honest measure
@@ -328,12 +323,12 @@ export default function HomePage() {
                 {gaps.map((g) => (
                   <li key={g.label}>
                     <div className="flex items-baseline justify-between gap-3">
-                      <span className="text-xs text-slate-300">{g.label}</span>
-                      <span className="num shrink-0 text-2xs text-slate-500">
+                      <span className="text-xs text-slate-700">{g.label}</span>
+                      <span className="num shrink-0 text-2xs text-slate-600">
                         {g.count} of {companies.length}
                       </span>
                     </div>
-                    <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-navy-800">
+                    <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-slate-100">
                       <div
                         className="h-full rounded-full bg-risk-500/70"
                         style={{ width: `${(g.count / companies.length) * 100}%` }}
@@ -342,7 +337,7 @@ export default function HomePage() {
                   </li>
                 ))}
               </ul>
-              <p className="mt-5 border-t border-white/[0.07] pt-4 text-2xs leading-relaxed text-slate-500">
+              <p className="mt-5 border-t border-slate-100 pt-4 text-2xs leading-relaxed text-slate-600">
                 Each company page carries an underwriting readiness panel separating what the public
                 record supports, what must come from management, and what a full data room would
                 need.
@@ -393,9 +388,9 @@ export default function HomePage() {
               },
             ].map((block, i) => (
               <Reveal key={block.title} index={i} stagger={50} className="panel p-5">
-                <h3 className="text-sm font-semibold text-ivory-50">{block.title}</h3>
+                <h3 className="text-sm font-semibold text-slate-900">{block.title}</h3>
                 {block.note ? (
-                  <p className="mt-1.5 text-2xs leading-relaxed text-slate-500">{block.note}</p>
+                  <p className="mt-1.5 text-2xs leading-relaxed text-slate-600">{block.note}</p>
                 ) : null}
                 <div className="mt-4">
                   <DistributionBar items={block.items} total={companies.length} />
@@ -403,7 +398,7 @@ export default function HomePage() {
               </Reveal>
             ))}
           </div>
-          <p className="mt-4 text-xs text-slate-500">
+          <p className="mt-4 text-xs text-slate-600">
             Discovery channels span {channelDistribution.length} distinct origination signals.{' '}
             <Link href="/universe/" className="link">
               See the full universe and the exclusion register
@@ -421,9 +416,9 @@ export default function HomePage() {
               {
                 d: DOWNLOADS.model,
                 type: 'XLSX',
-                meta: '14 sheets',
+                meta: '16 sheets',
                 detail:
-                  'Every input is an editable cell on the Assumptions sheet and every output is a live formula. Change an assumption and the SaaS metrics, debt schedules, returns, sensitivities, and downside case all recalculate.',
+                  'Editable assumptions feed formula-driven operating, capitalization, debt, return, and sensitivity schedules. Inputs are intentionally hardcoded; the derived outputs are formulas, so changing an assumption recalculates the SaaS metrics, debt schedules, returns, sensitivities, and downside case.',
               },
               {
                 d: DOWNLOADS.memo,
@@ -436,20 +431,20 @@ export default function HomePage() {
               <Reveal key={x.d.href} index={i} stagger={60} className="min-w-0">
                 <a
                   href={x.d.href}
-                  className="panel flex h-full min-w-0 flex-col p-5 transition-[transform,border-color,box-shadow] duration-200 ease-standard hover:border-white/15 hover:shadow-lift motion-safe:hover:-translate-y-0.5"
+                  className="panel flex h-full min-w-0 flex-col p-5 transition-[transform,border-color,box-shadow] duration-200 ease-standard hover:border-slate-200 hover:shadow-lift motion-safe:hover:-translate-y-0.5"
                 >
                   <div className="flex flex-wrap items-center gap-2.5">
-                    <span className="num rounded border border-cobalt-500/40 bg-cobalt-700/25 px-1.5 py-0.5 text-3xs font-bold text-cobalt-200">
+                    <span className="num rounded border border-cobalt-200 bg-cobalt-50 px-1.5 py-0.5 text-3xs font-bold text-cobalt-700">
                       {x.type}
                     </span>
-                    <span className="text-2xs text-slate-500">{x.meta}</span>
+                    <span className="text-2xs text-slate-600">{x.meta}</span>
                     <span className="text-2xs text-slate-600">Updated 6 Aug 2026</span>
                   </div>
-                  <p className="mt-3 font-display text-base font-semibold text-ivory-50">
+                  <p className="mt-3 font-display text-base font-semibold text-slate-900">
                     {x.d.title}
                   </p>
-                  <p className="mt-2 text-xs leading-relaxed text-slate-400">{x.detail}</p>
-                  <p className="num mt-4 break-all text-2xs text-cobalt-300">{x.d.label}</p>
+                  <p className="mt-2 text-xs leading-relaxed text-slate-600">{x.detail}</p>
+                  <p className="num mt-4 break-all text-2xs text-cobalt-600">{x.d.label}</p>
                   <span className="btn-secondary mt-4 w-full">Download</span>
                 </a>
               </Reveal>
@@ -482,8 +477,8 @@ export default function HomePage() {
               },
             ].map((x, i) => (
               <Reveal key={x.t} index={i} stagger={45} className="panel p-5">
-                <h3 className="text-sm font-semibold text-ivory-50">{x.t}</h3>
-                <p className="mt-2.5 text-xs leading-relaxed text-slate-400">{x.b}</p>
+                <h3 className="text-sm font-semibold text-slate-900">{x.t}</h3>
+                <p className="mt-2.5 text-xs leading-relaxed text-slate-600">{x.b}</p>
               </Reveal>
             ))}
           </div>
@@ -491,13 +486,13 @@ export default function HomePage() {
           <div className="mt-4 grid gap-3 lg:grid-cols-2">
             <Reveal className="panel p-5">
               <p className="label">Development disclosure</p>
-              <p className="mt-2.5 text-xs leading-relaxed text-slate-300">
+              <p className="mt-2.5 text-xs leading-relaxed text-slate-700">
                 {DEVELOPMENT_DISCLOSURE}
               </p>
             </Reveal>
             <Reveal index={1} className="panel p-5">
               <p className="label">Independent work sample</p>
-              <p className="mt-2.5 text-xs leading-relaxed text-slate-300">{DISCLOSURE}</p>
+              <p className="mt-2.5 text-xs leading-relaxed text-slate-700">{DISCLOSURE}</p>
             </Reveal>
           </div>
 

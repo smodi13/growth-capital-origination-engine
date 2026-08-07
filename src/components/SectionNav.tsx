@@ -43,7 +43,7 @@ export function SectionNav({
   return (
     <nav className={className} aria-label="Page sections">
       <p className="label">On this page</p>
-      <ul className="mt-3 space-y-0.5 border-l border-white/[0.08]">
+      <ul className="mt-3 space-y-0.5 border-l border-slate-200">
         {sections.map((s) => {
           const on = active === s.id;
           return (
@@ -53,8 +53,8 @@ export function SectionNav({
                 aria-current={on ? 'true' : undefined}
                 className={`relative -ml-px block border-l py-1.5 pl-3 text-2xs transition-colors duration-200 ${focusRing} ${
                   on
-                    ? 'border-cobalt-400 font-medium text-ivory-50'
-                    : 'border-transparent text-slate-500 hover:border-white/20 hover:text-slate-300'
+                    ? 'border-cobalt-400 font-medium text-slate-900'
+                    : 'border-transparent text-slate-600 hover:border-slate-200 hover:text-slate-700'
                 }`}
                 style={reduced ? undefined : undefined}
               >

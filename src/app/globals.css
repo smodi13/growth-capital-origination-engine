@@ -4,12 +4,17 @@
 
 @layer base {
   :root {
-    color-scheme: dark;
+    color-scheme: light;
     /* Consistent scroll offset for sticky in-page navigation. */
     scroll-padding-top: 5.5rem;
   }
 
+  /*
+   * The ground is white, declared on html, body, and main rather than on a
+   * wrapper, so nothing can paint a different colour underneath a short page.
+   */
   html {
+    background-color: #ffffff;
     -webkit-text-size-adjust: 100%;
     scroll-behavior: smooth;
   }
@@ -30,16 +35,21 @@
   }
 
   body {
-    @apply bg-navy-950 text-slate-300 antialiased;
+    background-color: #ffffff;
+    @apply text-slate-700 antialiased;
     font-feature-settings: 'tnum' on, 'lnum' on, 'kern' on;
     text-rendering: optimizeLegibility;
+  }
+
+  main {
+    background-color: #ffffff;
   }
 
   h1,
   h2,
   h3,
   h4 {
-    @apply text-ivory-50;
+    @apply text-slate-900;
     text-wrap: balance;
   }
 
@@ -52,11 +62,11 @@
   }
 
   ::selection {
-    @apply bg-cobalt-500/35 text-ivory-50;
+    @apply bg-cobalt-200/60 text-slate-900;
   }
 
   :focus-visible {
-    @apply outline-none ring-2 ring-cobalt-400 ring-offset-2 ring-offset-navy-950;
+    @apply outline-none ring-2 ring-cobalt-500 ring-offset-2 ring-offset-white;
   }
 
   /* Skip link, visible only when focused. */
@@ -64,28 +74,33 @@
     @apply sr-only;
   }
   .skip-link:focus {
-    @apply not-sr-only fixed left-4 top-4 z-[60] rounded-md bg-cobalt-600 px-4 py-2 text-sm font-semibold text-ivory-50;
+    @apply not-sr-only fixed left-4 top-4 z-[60] rounded-md bg-cobalt-600 px-4 py-2 text-sm font-semibold text-white;
   }
 }
 
 @layer components {
   /* ---------------------------------------------------------------- surfaces */
 
+  /*
+   * Cards are white on white. What separates them from the page is a hairline
+   * border and a shadow just strong enough to register, which is how printed
+   * research separates a table from the page it sits on.
+   */
   .panel {
-    @apply rounded-xl border border-white/[0.07] bg-graphite-900/70 shadow-panel backdrop-blur-[2px];
+    @apply rounded-xl border border-slate-100 bg-white shadow-panel;
   }
 
   .panel-quiet {
-    @apply rounded-xl border border-white/[0.05] bg-graphite-900/40;
+    @apply rounded-xl border border-slate-100 bg-ivory-100;
   }
 
   .panel-raised {
-    @apply rounded-xl border border-white/[0.09] bg-graphite-800/80 shadow-panel;
+    @apply rounded-xl border border-slate-200 bg-white shadow-lift;
   }
 
-  /* Ivory reading surface, used where sustained reading happens. */
+  /* Neutral ground for a section that should sit back from the page. */
   .surface-light {
-    @apply rounded-xl border border-ivory-300/70 bg-ivory-100 text-slate-800 shadow-panel;
+    @apply rounded-xl border border-slate-100 bg-ivory-100 text-slate-700;
   }
   .surface-light h1,
   .surface-light h2,
@@ -94,26 +109,31 @@
     @apply text-slate-900;
   }
 
+  /* Analytical ground. Used where a figure is derived rather than sourced. */
+  .surface-analytical {
+    @apply rounded-xl border border-slate-100 bg-ivory-200 text-slate-700;
+  }
+
   /* --------------------------------------------------------------- typography */
 
   .label {
-    @apply text-3xs font-semibold uppercase tracking-[0.16em] text-slate-500;
+    @apply text-3xs font-semibold uppercase tracking-[0.16em] text-slate-600;
   }
 
   .label-accent {
-    @apply text-3xs font-semibold uppercase tracking-[0.16em] text-cobalt-300;
+    @apply text-3xs font-semibold uppercase tracking-[0.16em] text-cobalt-600;
   }
 
   .eyebrow {
-    @apply text-2xs font-semibold uppercase tracking-[0.2em] text-cobalt-300;
+    @apply text-2xs font-semibold uppercase tracking-[0.2em] text-cobalt-600;
   }
 
   .lede {
-    @apply text-[0.9375rem] leading-relaxed text-slate-300;
+    @apply text-[0.9375rem] leading-relaxed text-slate-600;
   }
 
   .prose-research {
-    @apply max-w-prose text-sm leading-[1.75] text-slate-300;
+    @apply max-w-prose text-sm leading-[1.75] text-slate-700;
   }
   .prose-research p + p {
     @apply mt-3.5;
@@ -127,11 +147,11 @@
   /* -------------------------------------------------------------------- links */
 
   .link {
-    @apply text-cobalt-300 underline decoration-cobalt-300/30 underline-offset-[3px] hover:text-cobalt-200 hover:decoration-cobalt-200;
+    @apply text-cobalt-600 underline decoration-cobalt-600/30 underline-offset-[3px] hover:text-cobalt-700 hover:decoration-cobalt-700;
   }
 
   .link-quiet {
-    @apply text-slate-400 underline decoration-slate-600 underline-offset-[3px] hover:text-slate-200;
+    @apply text-slate-600 underline decoration-slate-200 underline-offset-[3px] hover:text-slate-900;
   }
 
   /* ------------------------------------------------------------------ buttons */
@@ -139,20 +159,20 @@
   .btn {
     @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-[0.8125rem] font-semibold
            transition-[background-color,border-color,color,transform,box-shadow] duration-200 ease-standard
-           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobalt-400 focus-visible:ring-offset-2
-           focus-visible:ring-offset-navy-950 active:translate-y-px;
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobalt-500 focus-visible:ring-offset-2
+           focus-visible:ring-offset-white active:translate-y-px;
   }
 
   .btn-primary {
-    @apply btn bg-cobalt-500 text-white shadow-panel hover:bg-cobalt-400;
+    @apply btn bg-cobalt-500 text-white hover:bg-cobalt-600;
   }
 
   .btn-secondary {
-    @apply btn border border-white/15 bg-white/[0.04] text-slate-100 hover:border-white/25 hover:bg-white/[0.08];
+    @apply btn border border-slate-200 bg-white text-slate-800 hover:border-slate-300 hover:bg-ivory-100;
   }
 
   .btn-ghost {
-    @apply btn border border-transparent text-slate-300 hover:bg-white/[0.05] hover:text-slate-100;
+    @apply btn border border-transparent text-slate-700 hover:bg-ivory-200 hover:text-slate-900;
   }
 
   /* ------------------------------------------------------------------- tables */
@@ -167,7 +187,7 @@
     height: 8px;
   }
   .table-scroll::-webkit-scrollbar-thumb {
-    @apply rounded-full bg-graphite-600;
+    @apply rounded-full bg-slate-200;
   }
 
   .th {
@@ -175,22 +195,26 @@
   }
 
   .td {
-    @apply px-3 py-3 align-top text-[0.8125rem] text-slate-300;
+    @apply px-3 py-3 align-top text-[0.8125rem] text-slate-700;
   }
 
-  /* Sticky header for long research tables. */
+  /*
+   * Sticky header for long research tables. A tinted neutral rather than a dark
+   * bar, so a long table does not reintroduce a dark surface by the back door.
+   */
   .thead-sticky th {
-    @apply sticky top-14 z-10 bg-navy-900/95 backdrop-blur supports-[backdrop-filter]:bg-navy-900/80;
+    @apply sticky top-14 z-10 border-b border-slate-200 bg-ivory-200/95 text-slate-800 backdrop-blur
+           supports-[backdrop-filter]:bg-ivory-200/85;
   }
 
   .row-hover {
-    @apply transition-colors duration-150 hover:bg-white/[0.035];
+    @apply transition-colors duration-150 hover:bg-cobalt-50;
   }
 
   /* -------------------------------------------------------------------- misc */
 
   .hairline {
-    @apply h-px w-full border-0 bg-gradient-to-r from-transparent via-white/10 to-transparent;
+    @apply h-px w-full border-0 bg-slate-100;
   }
 
   .chip {
@@ -198,13 +222,13 @@
   }
 
   .field {
-    @apply w-full rounded-lg border border-white/10 bg-navy-900/80 px-3 py-2 text-[0.8125rem] text-slate-100
+    @apply w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-[0.8125rem] text-slate-800
            placeholder:text-slate-600 focus:border-cobalt-500 focus:outline-none focus:ring-1 focus:ring-cobalt-500;
   }
 
   /* Highlighted search matches. */
   mark.hit {
-    @apply rounded-[3px] bg-cobalt-400/30 px-0.5 text-ivory-50;
+    @apply rounded-[3px] bg-caution-100 px-0.5 text-slate-900;
   }
 }
 

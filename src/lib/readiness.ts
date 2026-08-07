@@ -39,6 +39,25 @@ export const READINESS_DESCRIPTION: Record<ReadinessLevel, string> = {
     'Revenue scale plus either a retention measure or a lender who has already underwritten the credit. This is the closest the public record gets, and it still requires a full data room before any structure could be committed.',
 };
 
+/**
+ * Months after which a quantified metric is treated as historical.
+ *
+ * Eighteen months is roughly two reporting cycles. Past that, a figure
+ * describes what was true rather than what is true, and the interface says so
+ * rather than presenting it as current.
+ */
+export const STALE_AFTER_MONTHS = 18;
+
+/** Whether a quantified claim describes a period now materially in the past. */
+export function isHistorical(claim: Claim, reviewDate: string): boolean {
+  if (!claim.asOf) return false;
+  const asOf = new Date(claim.asOf);
+  const review = new Date(reviewDate);
+  const months =
+    (review.getFullYear() - asOf.getFullYear()) * 12 + (review.getMonth() - asOf.getMonth());
+  return months >= STALE_AFTER_MONTHS;
+}
+
 /** A claim that actually carries a number a reader could act on. */
 export function isPubliclyQuantified(claim: Claim): boolean {
   return (

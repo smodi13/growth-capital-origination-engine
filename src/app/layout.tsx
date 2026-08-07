@@ -31,12 +31,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             {children}
           </main>
 
-          <footer className="mt-24 border-t border-white/[0.07] bg-navy-900/40">
+          <footer className="mt-24 border-t border-slate-100 bg-ivory-100">
             <div className="mx-auto w-full max-w-[86rem] px-4 py-12 sm:px-6 lg:px-8">
               <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
                 <div>
-                  <p className="font-display text-base font-semibold text-ivory-50">{SITE.name}</p>
-                  <p className="mt-2.5 text-xs leading-relaxed text-slate-500">{SITE.tagline}</p>
+                  <p className="font-display text-base font-semibold text-slate-900">{SITE.name}</p>
+                  <p className="mt-2.5 text-xs leading-relaxed text-slate-600">{SITE.tagline}</p>
                 </div>
 
                 <div>
@@ -44,7 +44,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <ul className="mt-3.5 space-y-2">
                     {ROUTES.map((r) => (
                       <li key={r.href}>
-                        <Link href={r.href} className="text-xs text-slate-400 hover:text-slate-100">
+                        <Link href={r.href} className="text-xs text-slate-600 hover:text-slate-800">
                           {r.label}
                         </Link>
                       </li>
@@ -57,16 +57,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <ul className="mt-3.5 space-y-2">
                     <li>
                       <a
-                        href="/downloads/Enterprise_Software_Growth_Capital_Model.xlsx"
-                        className="text-xs text-slate-400 hover:text-slate-100"
+                        href="/downloads/Enterprise%20Software%20Growth%20Capital%20Model.xlsx"
+                        className="text-xs text-slate-600 hover:text-slate-800"
                       >
                         Excel underwriting model
                       </a>
                     </li>
                     <li>
                       <a
-                        href="/downloads/Enterprise_Software_Origination_and_Underwriting_Case.pdf"
-                        className="text-xs text-slate-400 hover:text-slate-100"
+                        href="/downloads/Enterprise%20Software%20Origination%20and%20Underwriting%20Case.pdf"
+                        className="text-xs text-slate-600 hover:text-slate-800"
                       >
                         PDF investment memorandum
                       </a>
@@ -74,7 +74,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     <li>
                       <ExternalLink
                         href={SITE.github}
-                        className="text-xs text-slate-400 hover:text-slate-100"
+                        className="text-xs text-slate-600 hover:text-slate-800"
                       >
                         Source code on GitHub
                       </ExternalLink>
@@ -88,7 +88,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     <li>
                       <a
                         href={`mailto:${SITE.email}`}
-                        className="text-xs text-slate-400 hover:text-slate-100"
+                        className="text-xs text-slate-600 hover:text-slate-800"
                       >
                         {SITE.email}
                       </a>
@@ -96,7 +96,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     <li>
                       <ExternalLink
                         href={SITE.linkedin}
-                        className="text-xs text-slate-400 hover:text-slate-100"
+                        className="text-xs text-slate-600 hover:text-slate-800"
                       >
                         LinkedIn
                       </ExternalLink>
@@ -104,7 +104,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     <li>
                       <ExternalLink
                         href={SITE.github}
-                        className="text-xs text-slate-400 hover:text-slate-100"
+                        className="text-xs text-slate-600 hover:text-slate-800"
                       >
                         GitHub repository
                       </ExternalLink>
@@ -113,7 +113,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </div>
               </div>
 
-              <p className="mt-12 border-t border-white/[0.07] pt-7 text-2xs leading-relaxed text-slate-600">
+              <p className="mt-12 border-t border-slate-100 pt-7 text-2xs leading-relaxed text-slate-600">
                 {DISCLOSURE}
               </p>
             </div>

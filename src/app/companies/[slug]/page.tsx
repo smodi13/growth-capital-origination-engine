@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { companies, companySlugs, getCompany } from '@/data/companies';
+import { REVIEW_DATE } from '@/data/helpers';
 import {
   breakdownOf,
   CAPITAL_FIT_LABEL,
@@ -13,7 +14,7 @@ import { NOT_DISCLOSED, type Claim, type CompanyRecord, type SourceRef } from '@
 import { ReadinessPanel } from '@/components/ReadinessPanel';
 import { SectionNav } from '@/components/SectionNav';
 import { ReadingProgress, ScoreBar } from '@/components/motion';
-import { readinessOf } from '@/lib/readiness';
+import { isHistorical, readinessOf, STALE_AFTER_MONTHS } from '@/lib/readiness';
 import {
   ClassificationBadge,
   ConfidenceBadge,
@@ -74,21 +75,57 @@ function ClaimBlock({
 }) {
   const isMissing = claim.statement === NOT_DISCLOSED;
   const refs = sources.filter((s) => claim.sourceIds.includes(s.id));
+  const historical = isHistorical(claim, REVIEW_DATE);
+
+  /*
+   * The block is tinted by how well supported it is, so a reader scanning the
+   * page can see the shape of the evidence before reading a word of it. The
+   * tint is restrained and never the only signal: the provenance badge carries
+   * the same information in text.
+   */
+  const ground = isMissing
+    ? 'border-slate-100 bg-ivory-100'
+    : claim.provenance === 'independently-verified'
+      ? 'border-positive-200 bg-positive-100'
+      : claim.provenance === 'not-sufficiently-supported'
+        ? 'border-risk-200 bg-risk-100'
+        : claim.provenance === 'analyst-judgment'
+          ? 'border-cobalt-200 bg-cobalt-50'
+          : 'border-slate-100 bg-white';
 
   return (
-    <div className="border-b border-white/[0.06] py-3 last:border-0">
+    <div className={`rounded-lg border px-3.5 py-3 ${ground}`}>
       <div className="flex flex-wrap items-center gap-2">
         <p className="label">{label}</p>
         <ProvenanceBadge value={claim.provenance} />
         {claim.quantified ? <Pill>Quantified</Pill> : null}
+        {claim.asOf ? (
+          <span
+            className="text-2xs text-slate-600"
+            title="The most recent date this figure is known to describe, which is the period end where the source states one and the publication date otherwise."
+          >
+            As of {formatDate(claim.asOf)}
+          </span>
+        ) : null}
+        {historical ? (
+          <span className="rounded border border-caution-200 bg-caution-100 px-1.5 py-0.5 text-2xs font-medium text-caution-700">
+            Historical
+          </span>
+        ) : null}
       </div>
-      <p className={`mt-1.5 text-sm leading-relaxed ${isMissing ? 'text-slate-500' : 'text-slate-200'}`}>
+      <p className={`mt-1.5 text-sm leading-relaxed ${isMissing ? 'text-slate-600' : 'text-slate-800'}`}>
         {claim.statement}
       </p>
+      {historical ? (
+        <p className="mt-1.5 text-2xs leading-relaxed text-slate-600">
+          This figure is more than {STALE_AFTER_MONTHS} months old at the review date. It describes
+          the period stated above and should not be read as a current measure.
+        </p>
+      ) : null}
       {refs.length > 0 ? (
         <p className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-2xs">
           {refs.map((r) => (
-            <ExternalLink key={r.id} href={r.url} className="text-slate-500 underline decoration-white/20 underline-offset-2 hover:text-slate-300">
+            <ExternalLink key={r.id} href={r.url} className="text-slate-600 underline decoration-slate-300 underline-offset-2 hover:text-slate-700">
               {r.publisher}
               {r.published !== NOT_DISCLOSED ? `, ${formatDate(r.published)}` : ''}
             </ExternalLink>
@@ -106,31 +143,31 @@ function CapitalFitCard({ company, kind }: { company: CompanyRecord; kind: 'equi
   return (
     <div className="panel flex flex-col p-4">
       <div className="flex items-start justify-between gap-3">
-        <h3 className="text-sm font-semibold text-ivory-50">{CAPITAL_FIT_LABEL[kind]}</h3>
+        <h3 className="text-sm font-semibold text-slate-900">{CAPITAL_FIT_LABEL[kind]}</h3>
         <RatingBar rating={fit.rating} />
       </div>
-      <p className="mt-1 text-2xs text-slate-500">{fitDescriptor(fit.rating)}</p>
+      <p className="mt-1 text-2xs text-slate-600">{fitDescriptor(fit.rating)}</p>
 
       {fit.drivers.length > 0 ? (
         <ul className="mt-3 space-y-1.5">
           {fit.drivers.map((d) => (
-            <li key={d} className="flex gap-2 text-xs leading-relaxed text-slate-300">
+            <li key={d} className="flex gap-2 text-xs leading-relaxed text-slate-700">
               <span aria-hidden="true" className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-cobalt-500" />
               <span>{d}</span>
             </li>
           ))}
         </ul>
       ) : (
-        <p className="mt-3 text-xs italic text-slate-500">
+        <p className="mt-3 text-xs italic text-slate-600">
           No supporting driver is evidenced in the public record.
         </p>
       )}
 
       <div className="mt-auto pt-3">
         <p className="label">Conditions</p>
-        <p className="mt-1 text-xs leading-relaxed text-slate-400">{fit.conditions}</p>
+        <p className="mt-1 text-xs leading-relaxed text-slate-600">{fit.conditions}</p>
         {kind === 'debt' ? (
-          <p className="mt-2 rounded border border-white/[0.07] bg-navy-950/60 px-2.5 py-1.5 text-2xs leading-relaxed text-slate-500">
+          <p className="mt-2 rounded border border-slate-100 bg-ivory-100 px-2.5 py-1.5 text-2xs leading-relaxed text-slate-600">
             Evidence cap: the public record supports a private credit fit of at most {cap} of 5 for
             this company. The rating above cannot exceed that cap.
           </p>
@@ -158,16 +195,16 @@ export default async function CompanyPage({ params }: { params: Promise<{ slug: 
       <ReadingProgress />
 
       {/* Investment snapshot */}
-      <header className="border-b border-white/[0.07] pb-8">
+      <header className="border-b border-slate-100 pb-8">
         <p className="label">
           Company {index + 1} of {companies.length}
         </p>
         <div className="mt-3 flex flex-wrap items-start justify-between gap-6">
           <div className="min-w-0">
-            <h1 className="font-display text-display font-semibold text-ivory-50">
+            <h1 className="font-display text-display font-semibold text-slate-900">
               {company.name}
             </h1>
-            <p className="mt-2 text-sm text-slate-400">
+            <p className="mt-2 text-sm text-slate-600">
               {company.sector} <span className="text-slate-600">/</span> {company.subsector}
             </p>
             <div className="mt-4 flex flex-wrap gap-1.5">
@@ -191,7 +228,7 @@ export default async function CompanyPage({ params }: { params: Promise<{ slug: 
             <div className="mt-3">
               <ScoreBar value={breakdown.score} tone="cobalt" />
             </div>
-            <p className="num mt-2.5 text-right text-2xs text-slate-500">
+            <p className="num mt-2.5 text-right text-2xs text-slate-600">
               {breakdown.baseScore.toFixed(1)} base
               {breakdown.confidenceModifier >= 0 ? ' + ' : ' - '}
               {Math.abs(breakdown.confidenceModifier).toFixed(1)} confidence
@@ -217,7 +254,7 @@ export default async function CompanyPage({ params }: { params: Promise<{ slug: 
                 label: 'Finance leader',
                 value:
                   company.financeLeader === NOT_DISCLOSED ? (
-                    <span className="text-slate-500">{NOT_DISCLOSED}</span>
+                    <span className="text-slate-600">{NOT_DISCLOSED}</span>
                   ) : (
                     company.financeLeader
                   ),
@@ -248,7 +285,7 @@ export default async function CompanyPage({ params }: { params: Promise<{ slug: 
         title="Private status verification"
         description="Confirmation that the company is still privately held and independently operating as of the review date."
       >
-        <div className="panel px-4 py-2">
+        <div className="space-y-2">
           <ClaimBlock label="Verification" claim={company.privateStatusVerification} sources={company.sources} />
         </div>
       </Section>
@@ -266,7 +303,7 @@ export default async function CompanyPage({ params }: { params: Promise<{ slug: 
                 value: (
                   <span className="inline-flex items-center gap-2">
                     <FreshnessBadge value={company.signalFreshness} />
-                    <span className="text-xs text-slate-500">
+                    <span className="text-xs text-slate-600">
                       Measured from the review date of {formatDate(company.lastReviewed)}
                     </span>
                   </span>
@@ -298,7 +335,7 @@ export default async function CompanyPage({ params }: { params: Promise<{ slug: 
         title="Evidence and provenance"
         description="Each claim carries its own provenance classification. A claim marked not sufficiently supported cannot contribute positive weight to the origination score, which the scoring engine enforces in code."
       >
-        <div className="panel px-4 py-2">
+        <div className="grid gap-2 lg:grid-cols-2">
           <ClaimBlock label="Customer evidence" claim={company.customerEvidence} sources={company.sources} />
           <ClaimBlock label="Commercial maturity signal" claim={company.commercialMaturitySignal} sources={company.sources} />
           <ClaimBlock label="Growth signal" claim={company.growthSignal} sources={company.sources} />
@@ -323,7 +360,7 @@ export default async function CompanyPage({ params }: { params: Promise<{ slug: 
         <div className="table-scroll" tabIndex={0} role="region" aria-label="Scrollable table">
           <table className="w-full min-w-[60rem] border-collapse text-left">
             <thead>
-              <tr className="border-b border-white/[0.07]">
+              <tr className="border-b border-slate-100">
                 <th scope="col" className="px-3 py-2"><span className="label">Factor</span></th>
                 <th scope="col" className="px-3 py-2"><span className="label">Rating</span></th>
                 <th scope="col" className="px-3 py-2 text-right"><span className="label">Weight</span></th>
@@ -333,9 +370,9 @@ export default async function CompanyPage({ params }: { params: Promise<{ slug: 
             </thead>
             <tbody>
               {breakdown.contributions.map((c) => (
-                <tr key={c.key} className="border-b border-white/[0.06] align-top">
+                <tr key={c.key} className="border-b border-slate-100 align-top">
                   <td className="px-3 py-3">
-                    <p className="text-xs font-semibold text-slate-100">{c.label}</p>
+                    <p className="text-xs font-semibold text-slate-800">{c.label}</p>
                     <div className="mt-1.5 flex flex-wrap gap-1.5">
                       <ProvenanceBadge value={c.provenance} />
                       <Pill>{c.confidence} confidence</Pill>
@@ -344,25 +381,25 @@ export default async function CompanyPage({ params }: { params: Promise<{ slug: 
                   <td className="whitespace-nowrap px-3 py-3">
                     <RatingBar rating={c.rating} />
                     {c.suppressed ? (
-                      <p className="mt-1 text-2xs text-risk-400">
+                      <p className="mt-1 text-2xs text-risk-600">
                         Suppressed to 0 by provenance
                       </p>
                     ) : null}
                   </td>
-                  <td className="num px-3 py-3 text-right text-slate-400">{c.weight}%</td>
-                  <td className="num px-3 py-3 text-right font-semibold text-slate-100">
+                  <td className="num px-3 py-3 text-right text-slate-600">{c.weight}%</td>
+                  <td className="num px-3 py-3 text-right font-semibold text-slate-800">
                     {c.points.toFixed(1)}
                     <span className="text-slate-600">/{c.maxPoints}</span>
                   </td>
                   <td className="px-3 py-3">
-                    <p className="text-xs leading-relaxed text-slate-300">{c.evidence}</p>
-                    <p className="mt-1.5 text-xs leading-relaxed text-slate-500">{c.explanation}</p>
+                    <p className="text-xs leading-relaxed text-slate-700">{c.evidence}</p>
+                    <p className="mt-1.5 text-xs leading-relaxed text-slate-600">{c.explanation}</p>
                     {c.sourceIds.length > 0 ? (
                       <p className="mt-1.5 flex flex-wrap gap-x-3 text-2xs">
                         {company.sources
                           .filter((s) => c.sourceIds.includes(s.id))
                           .map((s) => (
-                            <ExternalLink key={s.id} href={s.url} className="text-slate-600 underline decoration-white/20 underline-offset-2 hover:text-slate-400">
+                            <ExternalLink key={s.id} href={s.url} className="text-slate-600 underline decoration-slate-300 underline-offset-2 hover:text-slate-600">
                               {s.publisher}
                             </ExternalLink>
                           ))}
@@ -371,35 +408,35 @@ export default async function CompanyPage({ params }: { params: Promise<{ slug: 
                   </td>
                 </tr>
               ))}
-              <tr className="border-b border-white/[0.07]">
-                <td className="px-3 py-3 text-xs font-semibold text-slate-100" colSpan={3}>
+              <tr className="border-b border-slate-100">
+                <td className="px-3 py-3 text-xs font-semibold text-slate-800" colSpan={3}>
                   Base weighted score
                 </td>
-                <td className="num px-3 py-3 text-right font-semibold text-ivory-50">
+                <td className="num px-3 py-3 text-right font-semibold text-slate-900">
                   {breakdown.baseScore.toFixed(1)}
                 </td>
-                <td className="px-3 py-3 text-xs text-slate-500">
+                <td className="px-3 py-3 text-xs text-slate-600">
                   Sum of weighted factor contributions, before the confidence modifier.
                 </td>
               </tr>
-              <tr className="border-b border-white/[0.07]">
-                <td className="px-3 py-3 text-xs font-semibold text-slate-100" colSpan={3}>
+              <tr className="border-b border-slate-100">
+                <td className="px-3 py-3 text-xs font-semibold text-slate-800" colSpan={3}>
                   Data confidence modifier ({company.dataConfidence})
                 </td>
-                <td className="num px-3 py-3 text-right font-semibold text-ivory-50">
+                <td className="num px-3 py-3 text-right font-semibold text-slate-900">
                   {breakdown.confidenceModifier >= 0 ? '+' : ''}
                   {breakdown.confidenceModifier.toFixed(1)}
                 </td>
-                <td className="px-3 py-3 text-xs text-slate-500">
+                <td className="px-3 py-3 text-xs text-slate-600">
                   Capped at plus or minus 3 points so that a well documented weak company cannot
                   outrank a clearly stronger one on disclosure alone.
                 </td>
               </tr>
               <tr>
-                <td className="px-3 py-3 text-sm font-semibold text-ivory-50" colSpan={3}>
+                <td className="px-3 py-3 text-sm font-semibold text-slate-900" colSpan={3}>
                   Origination priority score
                 </td>
-                <td className="num px-3 py-3 text-right text-base font-semibold text-cobalt-300">
+                <td className="num px-3 py-3 text-right text-base font-semibold text-cobalt-600">
                   {breakdown.score.toFixed(1)}
                 </td>
                 <td className="px-3 py-3" />
@@ -451,7 +488,7 @@ export default async function CompanyPage({ params }: { params: Promise<{ slug: 
           ].map((r) => (
             <div key={r.label} className="panel p-4">
               <p className="label">{r.label}</p>
-              <p className="mt-2 text-xs leading-relaxed text-slate-300">{r.value}</p>
+              <p className="mt-2 text-xs leading-relaxed text-slate-700">{r.value}</p>
             </div>
           ))}
         </div>
@@ -465,7 +502,7 @@ export default async function CompanyPage({ params }: { params: Promise<{ slug: 
       >
         <div className="panel p-4">
           <p className="label">Capital value proposition</p>
-          <p className="mt-1.5 text-sm leading-relaxed text-slate-200">
+          <p className="mt-1.5 text-sm leading-relaxed text-slate-800">
             {company.outreach.valueProposition}
           </p>
         </div>
@@ -477,11 +514,11 @@ export default async function CompanyPage({ params }: { params: Promise<{ slug: 
                 <Pill tone="accent">{email.audience} outreach</Pill>
                 <p className="text-2xs text-slate-600">Draft, not sent</p>
               </div>
-              <p className="mt-2.5 text-xs text-slate-400">{email.recipientRole}</p>
-              <p className="mt-2 text-xs font-semibold text-slate-100">
+              <p className="mt-2.5 text-xs text-slate-600">{email.recipientRole}</p>
+              <p className="mt-2 text-xs font-semibold text-slate-800">
                 Subject: {email.subject}
               </p>
-              <pre className="mt-3 whitespace-pre-wrap break-words font-sans text-xs leading-relaxed text-slate-300">
+              <pre className="mt-3 whitespace-pre-wrap break-words font-sans text-xs leading-relaxed text-slate-700">
                 {email.body}
               </pre>
             </article>
@@ -489,7 +526,7 @@ export default async function CompanyPage({ params }: { params: Promise<{ slug: 
         </div>
 
         {company.outreach.emails.length === 1 ? (
-          <p className="mt-3 text-xs leading-relaxed text-slate-500">
+          <p className="mt-3 text-xs leading-relaxed text-slate-600">
             No chief financial officer or equivalent finance leader is publicly disclosed for{' '}
             {company.name}, so no finance leader outreach has been drafted. Writing to an unnamed or
             assumed finance contact would be inventing a counterparty.
@@ -500,15 +537,15 @@ export default async function CompanyPage({ params }: { params: Promise<{ slug: 
           <p className="label">Key qualification questions</p>
           <ol className="mt-2 space-y-2">
             {company.qualificationQuestions.map((q, i) => (
-              <li key={q} className="flex gap-2.5 text-xs leading-relaxed text-slate-300">
-                <span className="num shrink-0 text-cobalt-400">{i + 1}</span>
+              <li key={q} className="flex gap-2.5 text-xs leading-relaxed text-slate-700">
+                <span className="num shrink-0 text-cobalt-600">{i + 1}</span>
                 <span>{q}</span>
               </li>
             ))}
           </ol>
-          <div className="mt-4 border-t border-white/[0.07] pt-3">
+          <div className="mt-4 border-t border-slate-100 pt-3">
             <p className="label">Next diligence step</p>
-            <p className="mt-1.5 text-xs leading-relaxed text-slate-300">{company.nextDiligenceStep}</p>
+            <p className="mt-1.5 text-xs leading-relaxed text-slate-700">{company.nextDiligenceStep}</p>
           </div>
         </div>
       </Section>
@@ -522,10 +559,10 @@ export default async function CompanyPage({ params }: { params: Promise<{ slug: 
         <div className="panel p-4">
           <ul className="grid gap-x-6 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
             {company.missingInformation.map((m) => (
-              <li key={m} className="flex gap-2 text-xs text-slate-400">
+              <li key={m} className="flex gap-2 text-xs text-slate-600">
                 <span aria-hidden="true" className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-risk-600" />
                 <span>
-                  {m}: <span className="text-slate-500">{NOT_DISCLOSED}</span>
+                  {m}: <span className="text-slate-600">{NOT_DISCLOSED}</span>
                 </span>
               </li>
             ))}
@@ -545,16 +582,16 @@ export default async function CompanyPage({ params }: { params: Promise<{ slug: 
             { title: 'Corroborating sources', list: corroborating },
           ].map((group) => (
             <div key={group.title} className="panel p-4">
-              <h3 className="text-sm font-semibold text-slate-100">
+              <h3 className="text-sm font-semibold text-slate-800">
                 {group.title} <span className="num text-slate-600">({group.list.length})</span>
               </h3>
               <ul className="mt-3 space-y-3">
                 {group.list.map((s) => (
-                  <li key={s.id} className="border-b border-white/[0.06] pb-3 last:border-0 last:pb-0">
-                    <ExternalLink href={s.url} className="text-xs font-medium text-cobalt-300 hover:text-cobalt-200">
+                  <li key={s.id} className="border-b border-slate-100 pb-3 last:border-0 last:pb-0">
+                    <ExternalLink href={s.url} className="text-xs font-medium text-cobalt-600 hover:text-cobalt-700">
                       {s.title}
                     </ExternalLink>
-                    <p className="mt-1 text-2xs text-slate-500">
+                    <p className="mt-1 text-2xs text-slate-600">
                       {s.publisher}
                       {s.published !== NOT_DISCLOSED ? ` · ${formatDate(s.published)}` : ' · undated'}
                       {s.isPressReleaseReproduction ? ' · press release reproduction, not independent verification' : ''}
@@ -563,7 +600,7 @@ export default async function CompanyPage({ params }: { params: Promise<{ slug: 
                 ))}
               </ul>
               {group.list.length === 0 ? (
-                <p className="mt-3 text-xs text-slate-500">None recorded.</p>
+                <p className="mt-3 text-xs text-slate-600">None recorded.</p>
               ) : null}
             </div>
           ))}

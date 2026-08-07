@@ -8,6 +8,7 @@ import {
   type SignalFreshness,
 } from '@/lib/types';
 import type { ReadinessLevel } from '@/lib/readiness';
+import { CLASSIFICATION_NOTE } from '@/lib/site';
 
 /* -------------------------------------------------------------------------- */
 /* Links                                                                      */
@@ -53,14 +54,31 @@ export function PageHeader({
   children?: ReactNode;
 }) {
   return (
-    <header className="relative border-b border-white/[0.07] pb-9">
+    <header className="relative border-b border-slate-100 pb-9">
       <p className="eyebrow">{eyebrow}</p>
-      <h1 className="mt-3 font-display text-display font-semibold text-ivory-50">{title}</h1>
+      <h1 className="mt-3 font-display text-display font-semibold text-slate-900">{title}</h1>
       {lede ? <p className="lede mt-4 max-w-prose">{lede}</p> : null}
       {children}
     </header>
   );
 }
+
+/**
+ * Optional section ground.
+ *
+ * White is the default and the overwhelming majority. The alternatives exist so
+ * a long analytical route can separate one stage of an argument from the next
+ * without reaching for a dark panel: a neutral for supporting schedules, and two
+ * very pale states for the downside and the conclusion.
+ */
+export type SectionGround = 'white' | 'neutral' | 'downside' | 'conclusion';
+
+const SECTION_GROUND: Record<SectionGround, string> = {
+  white: '',
+  neutral: 'rounded-2xl bg-ivory-100 px-5 py-8 sm:px-7',
+  downside: 'rounded-2xl bg-risk-100/60 px-5 py-8 sm:px-7',
+  conclusion: 'rounded-2xl bg-cobalt-50 px-5 py-8 sm:px-7',
+};
 
 export function Section({
   title,
@@ -68,20 +86,22 @@ export function Section({
   children,
   id,
   actions,
+  ground = 'white',
 }: {
   title: string;
   description?: string;
   children: ReactNode;
   id?: string;
   actions?: ReactNode;
+  ground?: SectionGround;
 }) {
   return (
-    <section id={id} className="mt-14 scroll-mt-24">
+    <section id={id} className={`mt-14 scroll-mt-24 ${SECTION_GROUND[ground]}`}>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0">
-          <h2 className="font-display text-title font-semibold text-ivory-50">{title}</h2>
+          <h2 className="font-display text-title font-semibold text-slate-900">{title}</h2>
           {description ? (
-            <p className="mt-2 max-w-prose text-sm leading-relaxed text-slate-400">{description}</p>
+            <p className="mt-2 max-w-prose text-sm leading-relaxed text-slate-600">{description}</p>
           ) : null}
         </div>
         {actions}
@@ -101,9 +121,9 @@ export function Section({
  */
 
 const FRESHNESS_STYLE: Record<SignalFreshness, string> = {
-  Fresh: 'border-positive-500/40 bg-positive-700/25 text-positive-200',
-  Recent: 'border-caution-500/40 bg-caution-700/25 text-caution-200',
-  Established: 'border-white/12 bg-white/[0.05] text-slate-400',
+  Fresh: 'border-positive-200 bg-positive-100 text-positive-700',
+  Recent: 'border-caution-200 bg-caution-100 text-caution-700',
+  Established: 'border-slate-100 bg-ivory-200 text-slate-600',
 };
 
 export function FreshnessBadge({ value }: { value: SignalFreshness }) {
@@ -111,9 +131,9 @@ export function FreshnessBadge({ value }: { value: SignalFreshness }) {
 }
 
 const CONFIDENCE_STYLE: Record<DataConfidence, string> = {
-  High: 'border-cobalt-500/45 bg-cobalt-700/25 text-cobalt-200',
-  Moderate: 'border-white/12 bg-white/[0.05] text-slate-300',
-  Limited: 'border-white/10 bg-white/[0.03] text-slate-500',
+  High: 'border-cobalt-200 bg-cobalt-50 text-cobalt-700',
+  Moderate: 'border-slate-100 bg-ivory-100 text-slate-700',
+  Limited: 'border-slate-100 bg-ivory-200 text-slate-600',
 };
 
 export function ConfidenceBadge({ value }: { value: DataConfidence }) {
@@ -125,12 +145,12 @@ export function ConfidenceBadge({ value }: { value: DataConfidence }) {
 }
 
 const PROVENANCE_STYLE: Record<Provenance, string> = {
-  'independently-verified': 'border-positive-500/40 bg-positive-700/22 text-positive-200',
-  'company-reported': 'border-cobalt-500/40 bg-cobalt-700/22 text-cobalt-200',
-  'investor-reported': 'border-teal-500/40 bg-teal-800/25 text-teal-200',
-  'government-reported': 'border-teal-600/40 bg-teal-900/35 text-teal-200',
-  'analyst-judgment': 'border-caution-500/40 bg-caution-700/22 text-caution-200',
-  'not-sufficiently-supported': 'border-risk-500/40 bg-risk-700/22 text-risk-200',
+  'independently-verified': 'border-positive-200 bg-positive-100 text-positive-700',
+  'company-reported': 'border-cobalt-200 bg-cobalt-50 text-cobalt-700',
+  'investor-reported': 'border-teal-200 bg-teal-50 text-teal-700',
+  'government-reported': 'border-teal-200 bg-teal-50 text-teal-700',
+  'analyst-judgment': 'border-caution-200 bg-caution-100 text-caution-700',
+  'not-sufficiently-supported': 'border-risk-200 bg-risk-100 text-risk-700',
 };
 
 export function ProvenanceBadge({ value }: { value: Provenance }) {
@@ -138,8 +158,8 @@ export function ProvenanceBadge({ value }: { value: Provenance }) {
 }
 
 const CLASSIFICATION_STYLE: Record<CompanyClassification, string> = {
-  'Benchmark growth company': 'border-white/12 bg-white/[0.05] text-slate-300',
-  'Emerging origination target': 'border-teal-500/45 bg-teal-800/30 text-teal-200',
+  'Benchmark growth company': 'border-slate-200 bg-ivory-200 text-slate-700',
+  'Emerging origination target': 'border-cobalt-200 bg-cobalt-50 text-cobalt-700',
 };
 
 export function ClassificationBadge({
@@ -155,18 +175,21 @@ export function ClassificationBadge({
       : 'Benchmark'
     : value;
   return (
-    <span className={`chip ${CLASSIFICATION_STYLE[value]}`} title={value}>
+    <span
+      className={`chip ${CLASSIFICATION_STYLE[value]}`}
+      title={`${value}. ${CLASSIFICATION_NOTE}`}
+    >
       {label}
     </span>
   );
 }
 
 const READINESS_STYLE: Record<ReadinessLevel, string> = {
-  'Potentially underwritable': 'border-positive-500/45 bg-positive-700/25 text-positive-200',
-  'Underwriting data required': 'border-cobalt-500/45 bg-cobalt-700/25 text-cobalt-200',
-  'Preliminary qualification possible': 'border-teal-500/40 bg-teal-800/28 text-teal-200',
-  'Outreach worthy': 'border-caution-500/40 bg-caution-700/22 text-caution-200',
-  'Insufficient public evidence': 'border-risk-500/40 bg-risk-700/22 text-risk-200',
+  'Potentially underwritable': 'border-positive-200 bg-positive-100 text-positive-700',
+  'Underwriting data required': 'border-cobalt-200 bg-cobalt-50 text-cobalt-700',
+  'Preliminary qualification possible': 'border-teal-200 bg-teal-50 text-teal-700',
+  'Outreach worthy': 'border-caution-200 bg-caution-100 text-caution-700',
+  'Insufficient public evidence': 'border-risk-200 bg-risk-100 text-risk-700',
 };
 
 export function ReadinessBadge({ value }: { value: ReadinessLevel }) {
@@ -184,8 +207,8 @@ export function Pill({
     <span
       className={`chip ${
         tone === 'accent'
-          ? 'border-cobalt-500/45 bg-cobalt-700/25 text-cobalt-200'
-          : 'border-white/10 bg-white/[0.04] text-slate-400'
+          ? 'border-cobalt-200 bg-cobalt-50 text-cobalt-700'
+          : 'border-slate-200 bg-ivory-200 text-slate-600'
       }`}
     >
       {children}
@@ -200,7 +223,7 @@ export function Pill({
 export function ScoreMark({ score, size = 'md' }: { score: number; size?: 'sm' | 'md' | 'lg' }) {
   const cls = size === 'lg' ? 'text-4xl' : size === 'sm' ? 'text-base' : 'text-2xl';
   return (
-    <span className={`num font-semibold text-ivory-50 ${cls}`}>{score.toFixed(1)}</span>
+    <span className={`num font-semibold text-slate-900 ${cls}`}>{score.toFixed(1)}</span>
   );
 }
 
@@ -211,11 +234,11 @@ export function RatingBar({ rating, max = 5 }: { rating: number; max?: number })
         {Array.from({ length: max }, (_, i) => (
           <span
             key={i}
-            className={`h-3 w-1.5 rounded-sm ${i < rating ? 'bg-cobalt-400' : 'bg-navy-700'}`}
+            className={`h-3 w-1.5 rounded-sm ${i < rating ? 'bg-cobalt-500' : 'bg-slate-200'}`}
           />
         ))}
       </span>
-      <span className="num text-2xs text-slate-400">
+      <span className="num text-2xs text-slate-600">
         {rating}/{max}
       </span>
     </span>
@@ -237,8 +260,8 @@ export function DisclosureBanner({
     <div
       className={`rounded-lg border px-4 py-3 text-xs leading-relaxed ${
         tone === 'warning'
-          ? 'border-caution-500/35 bg-caution-700/15 text-caution-100'
-          : 'border-white/[0.07] bg-graphite-900/50 text-slate-400'
+          ? 'border-caution-200 bg-caution-100 text-caution-700'
+          : 'border-slate-200 bg-ivory-200 text-slate-600'
       }`}
     >
       {children}
@@ -262,8 +285,8 @@ export function StatTile({
   return (
     <div className="panel px-4 py-3.5">
       <p className="label">{label}</p>
-      <p className="num mt-2 text-2xl font-semibold text-ivory-50">{value}</p>
-      {sub ? <p className="mt-1.5 text-2xs leading-snug text-slate-500">{sub}</p> : null}
+      <p className="num mt-2 text-2xl font-semibold text-slate-900">{value}</p>
+      {sub ? <p className="mt-1.5 text-2xs leading-snug text-slate-600">{sub}</p> : null}
     </div>
   );
 }
@@ -281,17 +304,17 @@ export function DistributionBar({
         <li key={item.label} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
           <div className="min-w-0">
             <div className="flex items-baseline justify-between gap-2">
-              <span className="truncate text-xs text-slate-300">{item.label}</span>
-              <span className="num shrink-0 text-2xs text-slate-500">{item.count}</span>
+              <span className="truncate text-xs text-slate-700">{item.label}</span>
+              <span className="num shrink-0 text-2xs text-slate-600">{item.count}</span>
             </div>
-            <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-navy-800">
+            <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
               <div
                 className="h-full rounded-full bg-cobalt-500"
                 style={{ width: `${total > 0 ? (item.count / total) * 100 : 0}%` }}
               />
             </div>
           </div>
-          <span className="num w-10 text-right text-2xs text-slate-500">
+          <span className="num w-10 text-right text-2xs text-slate-600">
             {total > 0 ? Math.round((item.count / total) * 100) : 0}%
           </span>
         </li>
@@ -306,11 +329,11 @@ export function DistributionBar({
 
 export function FieldList({ fields }: { fields: { label: string; value: ReactNode }[] }) {
   return (
-    <dl className="divide-y divide-white/[0.06]">
+    <dl className="divide-y divide-slate-100">
       {fields.map((f) => (
         <div key={f.label} className="grid gap-1 py-3 sm:grid-cols-[13rem_minmax(0,1fr)] sm:gap-5">
           <dt className="label pt-0.5">{f.label}</dt>
-          <dd className="text-[0.8125rem] leading-relaxed text-slate-200">{f.value}</dd>
+          <dd className="text-[0.8125rem] leading-relaxed text-slate-800">{f.value}</dd>
         </div>
       ))}
     </dl>
@@ -334,7 +357,7 @@ export function Term({ children, definition }: { children: ReactNode; definition
       tabIndex={0}
       title={definition}
       aria-label={`${typeof children === 'string' ? children : ''}. ${definition}`}
-      className="cursor-help border-b border-dotted border-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobalt-400"
+      className="cursor-help border-b border-dotted border-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobalt-500"
     >
       {children}
     </span>

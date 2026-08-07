@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """
-Build Enterprise_Software_Origination_and_Underwriting_Case.pdf.
+SUPERSEDED. The committed workbook and memorandum are supplied files that are
+the approved source of truth. Do not run this script over public/downloads:
+regenerating would change the bytes the site is verified against.
+
+Build Enterprise Software Origination and Underwriting Case.pdf.
 
 The memorandum is generated from the same model constants that drive the web
 application and the Excel workbook, so the three artefacts cannot drift apart.
@@ -35,7 +39,7 @@ OUT = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
     "public",
     "downloads",
-    "Enterprise_Software_Origination_and_Underwriting_Case.pdf",
+    "Enterprise Software Origination and Underwriting Case.pdf",
 )
 
 COMPANY = "Northstar Workflow Systems"
@@ -928,7 +932,7 @@ E.append(Paragraph(
     st_small))
 E.append(Spacer(1, 4))
 E.append(Paragraph(
-    "This memorandum accompanies Enterprise_Software_Growth_Capital_Model.xlsx, in which every assumption "
+    "This memorandum accompanies Enterprise Software Growth Capital Model.xlsx, in which every assumption "
     "used here is an editable input and every figure quoted here is a live formula. Source code, the real "
     "private company research universe, and the scripts that generate both documents are public at "
     "github.com/smodi13/growth-capital-origination-engine.",

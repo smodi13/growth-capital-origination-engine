@@ -30,7 +30,7 @@ export function DataTable<T>({
         <table className="w-full border-collapse text-left" style={{ minWidth }}>
           {caption ? <caption className="sr-only">{caption}</caption> : null}
           <thead>
-            <tr className="border-b border-white/[0.07]">
+            <tr className="border-b border-slate-100">
               {columns.map((c) => (
                 <th
                   key={c.key}
@@ -44,12 +44,12 @@ export function DataTable<T>({
           </thead>
           <tbody>
             {rows.map((row, i) => (
-              <tr key={rowKey(row, i)} className="border-b border-white/[0.06] align-top">
+              <tr key={rowKey(row, i)} className="border-b border-slate-100 align-top">
                 {columns.map((c) => (
                   <td
                     key={c.key}
                     className={`px-3 py-2.5 text-xs ${c.align === 'right' ? 'text-right' : ''} ${
-                      c.emphasis ? 'font-semibold text-ivory-50' : 'text-slate-300'
+                      c.emphasis ? 'font-semibold text-slate-900' : 'text-slate-700'
                     }`}
                   >
                     {c.render(row)}

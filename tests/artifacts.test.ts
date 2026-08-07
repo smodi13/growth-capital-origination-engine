@@ -26,6 +26,7 @@ const ROOT = resolve(__dirname, '..');
 
 const REQUIRED_SHEETS = [
   'Read Me',
+  'IC Summary',
   'Assumptions',
   'Historical Financials',
   'Operating Forecast',
@@ -38,6 +39,7 @@ const REQUIRED_SHEETS = [
   'Returns Analysis',
   'Sensitivities',
   'Downside Case',
+  'Model Checks',
   'Sources and Disclosures',
 ];
 
@@ -53,7 +55,7 @@ describe('artefacts', () => {
     expect(statSync(XLSX_PATH).size).toBeGreaterThan(20_000);
 
     const sheets = xlsxSheetNames();
-    expect(sheets).toHaveLength(14);
+    expect(sheets).toHaveLength(16);
     REQUIRED_SHEETS.forEach((s) => expect(sheets, `missing sheet ${s}`).toContain(s));
     expect(sheets).toEqual(REQUIRED_SHEETS);
   });
@@ -91,30 +93,40 @@ describe('artefacts', () => {
 
     [
       'Executive Summary',
-      'Company Overview',
-      'Market and Product',
-      'SaaS Quality',
-      'Capital Need',
-      'Structure Alternatives',
-      'Growth Equity Case',
-      'Private Credit Case',
-      'Blended Capital Case',
-      'Key Risks',
-      'Preliminary Recommendation',
-      'Additional Diligence Required',
+      'Operating Case and SaaS Quality',
+      'Capital Need and Structure Economics',
+      'Structure Alternatives and Holder Value',
+      'Downside Case and Key Risks',
+      'Additional Diligence and Model Controls',
+      'Credit framing',
+      'Equity / debt mix sensitivity',
+      'Model control summary',
       'Disclosure',
     ].forEach((s) => expect(text, `PDF missing section ${s}`).toContain(s));
   });
 
   it('the PDF recommends one structure and states where it could be wrong', () => {
     const text = pdfText();
-    expect(text).toContain('Recommendation');
-    expect(text.toLowerCase()).toContain('blended');
-    expect(text).toContain('Where this conclusion could be wrong');
-    // The recommendation must engage each balancing consideration.
-    ['dilution', 'runway', 'downside', 'flexibility'].forEach((k) =>
+    expect(text).toContain('Preliminary base-case recommendation');
+    expect(text).toContain('Preliminary conclusion');
+    expect(text.toLowerCase()).toContain('blend');
+    // The recommendation is conditional, and the memorandum says so rather than
+    // presenting the structure as settled.
+    expect(text).toContain('Boundary of the recommendation');
+    expect(text).toMatch(/It is conditional/);
+    ['dilution', 'downside', 'breaches', 'liquidity'].forEach((k) =>
       expect(text.toLowerCase(), `PDF must address ${k}`).toContain(k),
     );
+  });
+
+  it('the PDF carries the corrected holder value and the sizing bridge', () => {
+    const text = pdfText();
+    expect(text).toContain('USD 9.7m');
+    expect(text).toContain('Base case gross capital required 16.9');
+    expect(text).toContain('Downside gross capital required 24.6');
+    expect(text).toContain('Downside funding shortfall 4.6');
+    // and explains why the superseded figure was wrong
+    expect(text).toContain('earlier USD 25 million statement incorrectly applied');
   });
 
   it('20. the hypothetical disclosure appears on every page that presents the case', () => {
@@ -138,17 +150,19 @@ describe('artefacts', () => {
   it('23. download links point at files that exist', () => {
     [DOWNLOADS.model, DOWNLOADS.memo].forEach((d) => {
       expect(d.href.startsWith('/downloads/')).toBe(true);
-      const onDisk = resolve(ROOT, 'public', d.href.replace(/^\//, ''));
+      // The URL is percent encoded; the file on disk carries the real spaces.
+      const onDisk = resolve(ROOT, 'public', decodeURIComponent(d.href.replace(/^\//, '')));
       expect(existsSync(onDisk), `${d.href} is missing from public/`).toBe(true);
-      expect(d.href.endsWith(d.label)).toBe(true);
+      expect(decodeURIComponent(d.href).endsWith(d.label)).toBe(true);
+      expect(d.label, 'the visible filename keeps its spaces').not.toContain('%20');
     });
 
     // Both artefacts must be the only things in the downloads directory, so a
     // stale file cannot be shipped by accident.
     const files = readdirSync(resolve(ROOT, 'public/downloads')).filter((f) => !f.startsWith('.'));
     expect(files.sort()).toEqual([
-      'Enterprise_Software_Growth_Capital_Model.xlsx',
-      'Enterprise_Software_Origination_and_Underwriting_Case.pdf',
+      'Enterprise Software Growth Capital Model.xlsx',
+      'Enterprise Software Origination and Underwriting Case.pdf',
     ]);
   });
 

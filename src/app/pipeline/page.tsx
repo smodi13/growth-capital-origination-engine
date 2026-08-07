@@ -66,7 +66,7 @@ export default function PipelinePage() {
         <div className="table-scroll" tabIndex={0} role="region" aria-label="Scrollable table">
           <table className="w-full min-w-[42rem] border-collapse text-left">
             <thead>
-              <tr className="border-b border-white/[0.07]">
+              <tr className="border-b border-slate-100">
                 <th scope="col" className="px-3 py-2"><span className="label">Status</span></th>
                 <th scope="col" className="px-3 py-2"><span className="label">Meaning</span></th>
                 <th scope="col" className="px-3 py-2"><span className="label">Used as a default</span></th>
@@ -87,12 +87,12 @@ export default function PipelinePage() {
               ).map(([status, meaning]) => {
                 const isDefault = status === 'Researching' || status === 'Qualified for outreach';
                 return (
-                  <tr key={status} className="border-b border-white/[0.06] align-top">
-                    <td className="px-3 py-2.5 text-xs font-semibold text-slate-100">{status}</td>
-                    <td className="px-3 py-2.5 text-xs leading-relaxed text-slate-400">{meaning}</td>
+                  <tr key={status} className="border-b border-slate-100 align-top">
+                    <td className="px-3 py-2.5 text-xs font-semibold text-slate-800">{status}</td>
+                    <td className="px-3 py-2.5 text-xs leading-relaxed text-slate-600">{meaning}</td>
                     <td className="px-3 py-2.5 text-xs">
                       {isDefault ? (
-                        <span className="text-cobalt-300">Yes</span>
+                        <span className="text-cobalt-600">Yes</span>
                       ) : (
                         <span className="text-slate-600">No, available to the user only</span>
                       )}

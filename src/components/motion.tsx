@@ -210,13 +210,13 @@ export function ScoreBar({
     cobalt: 'bg-cobalt-500',
     teal: 'bg-teal-500',
     positive: 'bg-positive-500',
-    neutral: 'bg-graphite-400',
+    neutral: 'bg-slate-300',
   }[tone];
 
   return (
     <div
       ref={ref}
-      className={`w-full overflow-hidden rounded-full bg-navy-800 ${height} ${className}`}
+      className={`w-full overflow-hidden rounded-full bg-slate-100 ${height} ${className}`}
       role="img"
       aria-label={`${value.toFixed(1)} out of ${max}`}
     >
@@ -374,6 +374,6 @@ export const hoverLift =
   'transition-[transform,border-color,background-color,box-shadow] duration-200 ease-standard motion-safe:hover:-translate-y-0.5 hover:shadow-lift';
 
 export const focusRing =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobalt-400 focus-visible:ring-offset-2 focus-visible:ring-offset-navy-950';
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobalt-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white';
 
 export type { CSSProperties };

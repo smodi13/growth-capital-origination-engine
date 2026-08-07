@@ -5,6 +5,8 @@ import {
   blendedCapitalCase,
   breakEven,
   downsideForecast,
+  capitalSizing,
+  creditFraming,
   downsideAssumptions,
   downsideOutcomes,
   forecast,
@@ -100,8 +102,8 @@ export default function UnderwritingPage() {
       <Section title="Case assumptions" description="Every assumption below is an editable input in the Excel model rather than a hardcoded output.">
         <div className="grid gap-3 lg:grid-cols-2">
           <div className="panel p-4">
-            <h3 className="text-sm font-semibold text-slate-100">Operating assumptions</h3>
-            <dl className="mt-3 divide-y divide-white/[0.06]">
+            <h3 className="text-sm font-semibold text-slate-800">Operating assumptions</h3>
+            <dl className="mt-3 divide-y divide-slate-100">
               {[
                 ['Beginning ARR', `USD ${assumptions.beginningArr.toFixed(1)} million`],
                 ['Year one ARR growth', p(assumptions.growthYear1)],
@@ -117,28 +119,33 @@ export default function UnderwritingPage() {
                 ['Customer count at year zero', String(assumptions.customerCountYear0)],
               ].map(([k, v]) => (
                 <div key={k} className="flex justify-between gap-4 py-2">
-                  <dt className="text-xs text-slate-400">{k}</dt>
-                  <dd className="num text-right text-slate-100">{v}</dd>
+                  <dt className="text-xs text-slate-600">{k}</dt>
+                  <dd className="num text-right text-slate-800">{v}</dd>
                 </div>
               ))}
             </dl>
           </div>
 
           <div className="panel p-4">
-            <h3 className="text-sm font-semibold text-slate-100">Illustrative use of proceeds</h3>
+            <h3 className="text-sm font-semibold text-slate-800">Illustrative use of proceeds</h3>
             <ul className="mt-3 space-y-2">
-              {hypotheticalProfile.useOfProceeds.map((u) => (
-                <li key={u} className="flex gap-2 text-xs leading-relaxed text-slate-300">
+              {hypotheticalProfile.capitalUses.map((u) => (
+                <li key={u} className="flex gap-2 text-xs leading-relaxed text-slate-700">
                   <span aria-hidden="true" className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-cobalt-500" />
                   <span>{u}</span>
                 </li>
               ))}
             </ul>
+            <p className="mt-3 rounded-md border border-slate-100 bg-ivory-100 px-3 py-2 text-2xs leading-relaxed text-slate-600">
+              Product, sales hiring, international expansion, and working capital are operating
+              drivers already embedded in the forecast, so they are funded through the burn line
+              above rather than counted separately. Acquisition spend is not modelled.
+            </p>
 
-            <h3 className="mt-5 border-t border-white/[0.07] pt-4 text-sm font-semibold text-slate-100">
+            <h3 className="mt-5 border-t border-slate-100 pt-4 text-sm font-semibold text-slate-800">
               Transaction assumptions
             </h3>
-            <dl className="mt-3 divide-y divide-white/[0.06]">
+            <dl className="mt-3 divide-y divide-slate-100">
               {[
                 ['Capital raised', `USD ${transactionAssumptions.capitalRaised.toFixed(1)} million`],
                 ['Existing debt refinanced at close', `USD ${transactionAssumptions.refinanceExistingDebt.toFixed(1)} million`],
@@ -147,8 +154,8 @@ export default function UnderwritingPage() {
                 ['Minimum cash covenant', `USD ${transactionAssumptions.minimumCashCovenant.toFixed(1)} million`],
               ].map(([k, v]) => (
                 <div key={k} className="flex justify-between gap-4 py-2">
-                  <dt className="text-xs text-slate-400">{k}</dt>
-                  <dd className="num text-right text-slate-100">{v}</dd>
+                  <dt className="text-xs text-slate-600">{k}</dt>
+                  <dd className="num text-right text-slate-800">{v}</dd>
                 </div>
               ))}
             </dl>
@@ -170,6 +177,7 @@ export default function UnderwritingPage() {
       </Section>
 
       <Section
+        ground="neutral"
         title="Operating forecast"
         description="Revenue is the average of beginning and ending ARR, reflecting that ARR is added through the year rather than on day one."
       >
@@ -199,7 +207,7 @@ export default function UnderwritingPage() {
         <div className="mt-4 grid gap-3 lg:grid-cols-3">
           <div className="panel p-4">
             <p className="label">Where the case is strong</p>
-            <p className="mt-2 text-xs leading-relaxed text-slate-300">
+            <p className="mt-2 text-xs leading-relaxed text-slate-700">
               Net revenue retention of {p(assumptions.netRevenueRetention)} against gross retention of{' '}
               {p(assumptions.grossRetention)} means the installed base grows without new logos, and
               the burn multiple improves every year from {forecast[0].burnMultiple?.toFixed(2)} to{' '}
@@ -208,7 +216,7 @@ export default function UnderwritingPage() {
           </div>
           <div className="panel p-4">
             <p className="label">Where the case is weak</p>
-            <p className="mt-2 text-xs leading-relaxed text-slate-300">
+            <p className="mt-2 text-xs leading-relaxed text-slate-700">
               Rule of 40 begins at {forecast[0].ruleOf40.toFixed(0)} and only reaches{' '}
               {y5.ruleOf40.toFixed(0)} by year five. Gross retention of {p(assumptions.grossRetention)}{' '}
               implies {p(1 - assumptions.grossRetention)} of the base is lost annually, which is the
@@ -217,7 +225,7 @@ export default function UnderwritingPage() {
           </div>
           <div className="panel p-4">
             <p className="label">Break even</p>
-            <p className="mt-2 text-xs leading-relaxed text-slate-300">
+            <p className="mt-2 text-xs leading-relaxed text-slate-700">
               At the year five cost structure, operating expenses run{' '}
               {p(breakEven.year5OpexPctOfRevenue)} of revenue against a {p(assumptions.grossMargin)}{' '}
               gross margin, giving a contribution margin of {p(breakEven.contributionMargin)}. EBITDA
@@ -228,6 +236,7 @@ export default function UnderwritingPage() {
       </Section>
 
       <Section
+        ground="downside"
         title="Downside case"
         description={`Growth of ${p(downsideAssumptions.growthYear1)} rather than ${p(assumptions.growthYear1)}, net revenue retention of ${p(downsideAssumptions.netRevenueRetention)}, gross retention of ${p(downsideAssumptions.grossRetention)}, gross margin of ${p(downsideAssumptions.grossMargin)}, and sales and marketing that does not fall as quickly when growth disappoints.`}
       >
@@ -243,12 +252,12 @@ export default function UnderwritingPage() {
           {downsideOutcomes.map((o) => (
             <div key={o.label} className="panel p-4">
               <div className="flex items-center justify-between gap-3">
-                <p className="text-sm font-semibold text-ivory-50">{o.label}</p>
+                <p className="text-sm font-semibold text-slate-900">{o.label}</p>
                 <span
                   className={`rounded border px-1.5 py-0.5 text-2xs font-medium ${
                     o.survivesFiveYears
-                      ? 'border-positive-500/40 bg-positive-700/25 text-positive-200'
-                      : 'border-risk-500/40 bg-risk-700/22 text-risk-200'
+                      ? 'border-positive-200 bg-positive-100 text-positive-700'
+                      : 'border-risk-200 bg-risk-100 text-risk-700'
                   }`}
                 >
                   {o.survivesFiveYears ? 'Survives 5 years' : 'Runs out of cash'}
@@ -256,12 +265,12 @@ export default function UnderwritingPage() {
               </div>
               <dl className="mt-3 space-y-1.5">
                 <div className="flex justify-between gap-3">
-                  <dt className="text-xs text-slate-400">Ending cash</dt>
-                  <dd className="num text-slate-100">USD {o.endingCash.toFixed(1)}m</dd>
+                  <dt className="text-xs text-slate-600">Ending cash</dt>
+                  <dd className="num text-slate-800">USD {o.endingCash.toFixed(1)}m</dd>
                 </div>
                 <div className="flex justify-between gap-3">
-                  <dt className="text-xs text-slate-400">Minimum cash breach</dt>
-                  <dd className="num text-slate-100">
+                  <dt className="text-xs text-slate-600">Minimum cash breach</dt>
+                  <dd className="num text-slate-800">
                     {o.breachYear === null ? 'None' : `Year ${o.breachYear}`}
                   </dd>
                 </div>
@@ -270,7 +279,7 @@ export default function UnderwritingPage() {
           ))}
         </div>
 
-        <p className="mt-4 max-w-3xl text-xs leading-relaxed text-slate-400">
+        <p className="mt-4 max-w-3xl text-xs leading-relaxed text-slate-600">
           The downside case is what separates the three structures. Under all equity the company
           still ends year five with USD {downsideOutcomes[0].endingCash.toFixed(1)} million of cash.
           Under the all debt structure it runs out entirely, ending at USD{' '}
@@ -281,29 +290,159 @@ export default function UnderwritingPage() {
         </p>
       </Section>
 
-      <Section title="Preliminary recommendation">
+      {/* ================================================ Capital sizing == */}
+      <Section
+        id="sizing"
+        ground="neutral"
+        title="Capital need"
+        description="Why the plan requires USD 20 million when cumulative operating burn is USD 9 million. Every line below is a use the forecast does not already contain."
+      >
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+          <div className="panel overflow-hidden">
+            <div className="table-scroll" tabIndex={0} role="region" aria-label="Scrollable table">
+              <table className="w-full min-w-[26rem] text-sm">
+                <caption className="sr-only">
+                  Capital sizing bridge for the selected blend, in USD millions
+                </caption>
+                <thead className="border-b border-slate-200 bg-ivory-200">
+                  <tr>
+                    <th scope="col" className="th label">Capital sizing bridge</th>
+                    <th scope="col" className="th label text-right">USD m</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {capitalSizing.lines.map((l) => (
+                    <tr key={l.label}>
+                      <td className="td">
+                        <span className="font-medium text-slate-800">{l.label}</span>
+                        <span className="mt-0.5 block text-2xs leading-relaxed text-slate-600">
+                          {l.note}
+                        </span>
+                      </td>
+                      <td className="td num text-right tabular-nums text-slate-800">
+                        {l.value < 0 ? `(${Math.abs(l.value).toFixed(1)})` : l.value.toFixed(1)}
+                      </td>
+                    </tr>
+                  ))}
+                  <tr className="bg-ivory-100">
+                    <th scope="row" className="td text-left font-semibold text-slate-900">
+                      Base case gross capital required
+                    </th>
+                    <td className="td num text-right font-semibold text-slate-900">
+                      {capitalSizing.baseRequired.toFixed(1)}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row" className="td text-left font-medium text-slate-800">
+                      Gross capital raised
+                    </th>
+                    <td className="td num text-right text-slate-800">
+                      {capitalSizing.raised.toFixed(1)}
+                    </td>
+                  </tr>
+                  <tr className="bg-positive-100">
+                    <th scope="row" className="td text-left font-semibold text-positive-700">
+                      Base case excess headroom
+                    </th>
+                    <td className="td num text-right font-semibold text-positive-700">
+                      {capitalSizing.baseHeadroom.toFixed(1)}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row" className="td text-left font-medium text-slate-800">
+                      Downside gross capital required
+                    </th>
+                    <td className="td num text-right text-slate-800">
+                      {capitalSizing.downsideRequired.toFixed(1)}
+                    </td>
+                  </tr>
+                  <tr className="bg-risk-100">
+                    <th scope="row" className="td text-left font-semibold text-risk-700">
+                      Downside funding shortfall
+                    </th>
+                    <td className="td num text-right font-semibold text-risk-700">
+                      {capitalSizing.downsideShortfall.toFixed(1)}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="surface-light p-5">
+              <p className="label">What is not a separate use of proceeds</p>
+              <p className="mt-2.5 text-sm leading-relaxed text-slate-700">
+                Product development, sales hiring, international expansion, and working capital are
+                operational drivers already embedded in the operating forecast. They appear inside
+                the cumulative burn line and are not added again as separate uses, because doing so
+                would count the same spending twice.
+              </p>
+              <ul className="mt-3 flex flex-wrap gap-1.5">
+                {capitalSizing.embeddedInForecast.map((u) => (
+                  <li
+                    key={u}
+                    className="rounded-md border border-slate-200 bg-white px-2 py-1 text-2xs font-medium text-slate-700"
+                  >
+                    {u}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-3.5 border-t border-slate-200 pt-3 text-xs leading-relaxed text-slate-600">
+                Acquisition spend is not separately modelled and is therefore not presented as a use
+                of proceeds.
+              </p>
+            </div>
+
+            <div className="panel p-5">
+              <p className="label-accent">{creditFraming.headline}</p>
+              <p className="mt-2.5 text-sm leading-relaxed text-slate-700">
+                {creditFraming.rationale}
+              </p>
+              <p className="mt-4 label">Must be confirmed before sizing</p>
+              <ul className="mt-2 space-y-1.5">
+                {creditFraming.mustBeConfirmed.map((c) => (
+                  <li key={c} className="flex gap-2 text-xs leading-relaxed text-slate-700">
+                    <span aria-hidden="true" className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-cobalt-500" />
+                    <span>{c}</span>
+                  </li>
+                ))}
+              </ul>
+              <ul className="mt-4 space-y-2 border-t border-slate-100 pt-3.5">
+                {creditFraming.standingRisks.map((r) => (
+                  <li key={r} className="text-2xs leading-relaxed text-caution-700">
+                    {r}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      <Section ground="conclusion" title="Preliminary recommendation">
         <div className="panel p-5">
           <p className="label">Recommended illustrative structure</p>
-          <h3 className="mt-1.5 text-lg font-semibold text-cobalt-300">{recommendation.structure}</h3>
-          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-200">
+          <h3 className="mt-1.5 text-lg font-semibold text-cobalt-600">{recommendation.structure}</h3>
+          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-800">
             {recommendation.headline}
           </p>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {recommendation.reasons.map((r) => (
-              <div key={r.title} className="rounded-md border border-white/[0.07] bg-navy-950/50 p-3.5">
-                <p className="text-xs font-semibold text-slate-100">{r.title}</p>
-                <p className="mt-1.5 text-xs leading-relaxed text-slate-400">{r.detail}</p>
+              <div key={r.title} className="rounded-md border border-slate-100 bg-ivory-100 p-3.5">
+                <p className="text-xs font-semibold text-slate-800">{r.title}</p>
+                <p className="mt-1.5 text-xs leading-relaxed text-slate-600">{r.detail}</p>
               </div>
             ))}
           </div>
 
-          <div className="mt-5 rounded-md border border-caution-500/40 bg-caution-700/15 p-3.5">
-            <p className="text-xs font-semibold text-caution-100">Where this conclusion could be wrong</p>
-            <p className="mt-1.5 text-xs leading-relaxed text-caution-100/85">{recommendation.caveat}</p>
+          <div className="mt-5 rounded-md border border-caution-200 bg-caution-100 p-3.5">
+            <p className="text-xs font-semibold text-caution-700">Where this conclusion could be wrong</p>
+            <p className="mt-1.5 text-xs leading-relaxed text-caution-700">{recommendation.caveat}</p>
           </div>
 
-          <div className="mt-5 grid gap-2 border-t border-white/[0.07] pt-4 sm:grid-cols-3">
+          <div className="mt-5 grid gap-2 border-t border-slate-100 pt-4 sm:grid-cols-3">
             {[
               { label: 'Growth equity', s: growthEquityCase },
               { label: 'Private credit', s: privateCreditCase },
@@ -311,7 +450,7 @@ export default function UnderwritingPage() {
             ].map(({ label, s }) => (
               <div key={label}>
                 <p className="label">{label}</p>
-                <p className="num mt-1 text-slate-200">
+                <p className="num mt-1 text-slate-800">
                   Dilution {p(s.founderDilution, 1)} · Ending cash USD {s.endingCash.toFixed(1)}m
                 </p>
               </div>
@@ -329,10 +468,15 @@ export default function UnderwritingPage() {
       <Section title="Downloads" description="The full model and the written memorandum.">
         <div className="grid gap-3 sm:grid-cols-2">
           {[DOWNLOADS.model, DOWNLOADS.memo].map((d) => (
-            <a key={d.href} href={d.href} className="panel block min-w-0 p-4 transition-colors hover:border-white/10 hover:bg-graphite-800">
-              <p className="text-sm font-semibold text-ivory-50">{d.title}</p>
-              <p className="mt-1.5 text-xs leading-relaxed text-slate-400">{d.description}</p>
-              <p className="num mt-3 break-all text-cobalt-400">{d.label}</p>
+            <a
+              key={d.href}
+              href={d.href}
+              download={d.label}
+              className="panel block min-w-0 p-4 transition-colors hover:border-slate-200 hover:bg-ivory-100"
+            >
+              <p className="text-sm font-semibold text-slate-900">{d.title}</p>
+              <p className="num mt-1.5 break-words text-2xs text-cobalt-700">{d.label}</p>
+              <p className="mt-2.5 text-xs leading-relaxed text-slate-600">{d.description}</p>
             </a>
           ))}
         </div>

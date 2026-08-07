@@ -18,9 +18,12 @@ import {
 /**
  * Priority opportunity card.
  *
- * The face of the card carries only what is needed to decide whether to look
- * closer. Secondary research detail sits behind a disclosure control so the
- * grid stays scannable, which was the main failing of the previous design.
+ * The face carries the eight things that decide whether a company is worth
+ * opening: name, score, sector, stage, classification, signal freshness, the
+ * sourcing signal itself, and the preliminary capital view. Those last two used
+ * to sit behind the disclosure control, which meant the card showed a number
+ * without showing what produced it. Research detail stays behind the control so
+ * the grid remains scannable.
  */
 export function CompanyCard({
   company,
@@ -44,18 +47,18 @@ export function CompanyCard({
             ) : null}
             <Link
               href={`/companies/${company.slug}/`}
-              className={`truncate font-display text-base font-semibold text-ivory-50 hover:text-cobalt-200 ${focusRing} rounded`}
+              className={`truncate font-display text-base font-semibold text-slate-900 hover:text-cobalt-700 ${focusRing} rounded`}
             >
               {company.name}
             </Link>
           </div>
-          <p className="mt-1 truncate text-2xs text-slate-500">
-            {company.sector} <span className="text-slate-600">/</span> {company.financingStage}
+          <p className="mt-1 truncate text-2xs text-slate-600">
+            {company.sector} <span className="text-slate-400">/</span> {company.financingStage}
           </p>
         </div>
 
         <div className="shrink-0 text-right">
-          <span className="num text-2xl font-semibold leading-none text-ivory-50">
+          <span className="num text-2xl font-semibold leading-none text-slate-900">
             {score.toFixed(1)}
           </span>
           <p className="label mt-1">Score</p>
@@ -74,27 +77,35 @@ export function CompanyCard({
       </div>
 
       {/* Primary reasoning */}
-      <div className="mt-4">
-        <p className="label">Why it entered the pipeline</p>
-        <p className="mt-1.5 line-clamp-3 text-xs leading-relaxed text-slate-300">
-          {company.whyEnteredPipeline}
-        </p>
+      <div className="mt-4 space-y-3">
+        <div>
+          <p className="label">Sourcing signal</p>
+          <p className="mt-1.5 line-clamp-3 text-xs leading-relaxed text-slate-700">
+            {company.originalSourcingSignal}
+          </p>
+        </div>
+        <div className="rounded-lg border border-slate-100 bg-cobalt-50 px-3 py-2.5">
+          <p className="label">Preliminary capital view</p>
+          <p className="mt-1 line-clamp-3 text-xs leading-relaxed text-slate-700">
+            {company.preliminaryCapitalView}
+          </p>
+        </div>
       </div>
 
       {/* Progressive disclosure */}
       <Collapse open={open}>
-        <div className="mt-4 space-y-3.5 border-t border-white/[0.07] pt-4">
+        <div className="mt-4 space-y-3.5 border-t border-slate-100 pt-4">
           <div>
             <p className="label">Discovery signal</p>
-            <p className="mt-1.5 text-xs leading-relaxed text-slate-400">
-              {company.discoveryChannel} <span className="text-slate-600">/</span>{' '}
+            <p className="mt-1.5 text-xs leading-relaxed text-slate-600">
+              {company.discoveryChannel} <span className="text-slate-400">/</span>{' '}
               <span className="num">{company.signalDate}</span>
             </p>
           </div>
           <div>
-            <p className="label">Preliminary capital solution view</p>
-            <p className="mt-1.5 text-xs leading-relaxed text-slate-400">
-              {company.preliminaryCapitalView}
+            <p className="label">Why it entered the pipeline</p>
+            <p className="mt-1.5 text-xs leading-relaxed text-slate-600">
+              {company.whyEnteredPipeline}
             </p>
           </div>
           <div>
@@ -112,12 +123,12 @@ export function CompanyCard({
       </Collapse>
 
       {/* Footer */}
-      <div className="mt-auto flex items-center justify-between gap-3 border-t border-white/[0.07] pt-3 text-2xs text-slate-600">
+      <div className="mt-auto flex items-center justify-between gap-3 border-t border-slate-100 pt-3 text-2xs text-slate-600">
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
-          className={`rounded font-semibold text-slate-400 transition-colors hover:text-slate-100 ${focusRing}`}
+          className={`rounded font-semibold text-slate-600 transition-colors hover:text-slate-800 ${focusRing}`}
         >
           {open ? 'Less detail' : 'More detail'}
         </button>

@@ -15,7 +15,7 @@ import {
   Section,
 } from '@/components/primitives';
 import { UniverseTable, type UniverseRow } from '@/components/UniverseTable';
-import { DISCLOSURE } from '@/lib/site';
+import { CLASSIFICATION_NOTE, DISCLOSURE } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'Sourcing universe',
@@ -87,7 +87,10 @@ export default function UniversePage() {
               efficient, founder led, and carrying a recent product, customer, executive, financing,
               or credit signal that makes a flexible equity, debt, or blended conversation credible.
             </p>
-            <p className="mt-5 border-t border-ivory-300 pt-4 text-xs leading-relaxed text-slate-700">
+            <p className="mt-5 border-t border-slate-100 pt-4 text-xs leading-relaxed text-slate-700">
+              {CLASSIFICATION_NOTE}
+            </p>
+            <p className="mt-3 text-xs leading-relaxed text-slate-700">
               Classification is stamped during aggregation from the research file a record lives in,
               so a company cannot assign its own label, and it is excluded from every scoring input.
               Several emerging records score below the benchmark set. That is the honest result of
@@ -104,18 +107,18 @@ export default function UniversePage() {
                   <Link
                     key={c.slug}
                     href={`/companies/${c.slug}/`}
-                    className="panel flex flex-col p-4 transition-[transform,border-color] duration-200 hover:border-white/15 motion-safe:hover:-translate-y-0.5"
+                    className="panel flex flex-col p-4 transition-[transform,border-color] duration-200 hover:border-slate-200 motion-safe:hover:-translate-y-0.5"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="truncate font-display text-sm font-semibold text-ivory-50">
+                        <p className="truncate font-display text-sm font-semibold text-slate-900">
                           {c.name}
                         </p>
-                        <p className="mt-0.5 truncate text-2xs text-slate-500">
+                        <p className="mt-0.5 truncate text-2xs text-slate-600">
                           {c.sector} <span className="text-slate-600">/</span> {c.financingStage}
                         </p>
                       </div>
-                      <span className="num shrink-0 text-base font-semibold text-ivory-50">
+                      <span className="num shrink-0 text-base font-semibold text-slate-900">
                         {scoreOf(c).toFixed(1)}
                       </span>
                     </div>
@@ -126,7 +129,7 @@ export default function UniversePage() {
                   </Link>
                 ))}
             </div>
-            <p className="mt-3 text-2xs leading-relaxed text-slate-500">
+            <p className="mt-3 text-2xs leading-relaxed text-slate-600">
               Benchmark set: {benchmarkCompanies.length} companies. Emerging set:{' '}
               {emergingTargets.length}. Filter the table above by classification to see either group
               on its own.
@@ -141,17 +144,17 @@ export default function UniversePage() {
       >
         <div className="grid gap-4 lg:grid-cols-2">
           <div className="panel p-4">
-            <h3 className="text-sm font-semibold text-slate-100">Discovery channel</h3>
+            <h3 className="text-sm font-semibold text-slate-800">Discovery channel</h3>
             <div className="mt-3">
               <DistributionBar items={channelDistribution} total={companies.length} />
             </div>
           </div>
           <div className="panel p-4">
-            <h3 className="text-sm font-semibold text-slate-100">Signal freshness</h3>
+            <h3 className="text-sm font-semibold text-slate-800">Signal freshness</h3>
             <div className="mt-3">
               <DistributionBar items={freshnessDistribution} total={companies.length} />
             </div>
-            <p className="mt-3 text-2xs leading-relaxed text-slate-500">
+            <p className="mt-3 text-2xs leading-relaxed text-slate-600">
               Measured from the review date of {formatDate('2026-08-05')}. Fresh is within 90 days,
               Recent within 12 months, Established beyond that. A fresh signal raises outreach
               priority but never overrides fundamental company quality in the score.
@@ -167,7 +170,7 @@ export default function UniversePage() {
         <div className="table-scroll" tabIndex={0} role="region" aria-label="Scrollable table">
           <table className="w-full min-w-[48rem] border-collapse text-left">
             <thead>
-              <tr className="border-b border-white/[0.07]">
+              <tr className="border-b border-slate-100">
                 <th scope="col" className="px-3 py-2"><span className="label">Company</span></th>
                 <th scope="col" className="px-3 py-2"><span className="label">Sector considered</span></th>
                 <th scope="col" className="px-3 py-2"><span className="label">Reason excluded</span></th>
@@ -176,11 +179,11 @@ export default function UniversePage() {
             </thead>
             <tbody>
               {exclusions.map((e) => (
-                <tr key={e.name} className="border-b border-white/[0.06] align-top">
-                  <td className="px-3 py-3 text-xs font-semibold text-slate-100">{e.name}</td>
-                  <td className="px-3 py-3 text-xs text-slate-400">{e.sector}</td>
-                  <td className="px-3 py-3 text-xs text-slate-300">{e.reason}</td>
-                  <td className="px-3 py-3 text-xs leading-relaxed text-slate-400">
+                <tr key={e.name} className="border-b border-slate-100 align-top">
+                  <td className="px-3 py-3 text-xs font-semibold text-slate-800">{e.name}</td>
+                  <td className="px-3 py-3 text-xs text-slate-600">{e.sector}</td>
+                  <td className="px-3 py-3 text-xs text-slate-700">{e.reason}</td>
+                  <td className="px-3 py-3 text-xs leading-relaxed text-slate-600">
                     {e.evidence}
                     <p className="mt-1.5">
                       <ExternalLink href={e.sourceUrl}>Source</ExternalLink>

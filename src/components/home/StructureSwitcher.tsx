@@ -34,7 +34,7 @@ export function StructureSwitcher({ views }: { views: StructureView[] }) {
       <div
         role="tablist"
         aria-label="Capital structure"
-        className="flex flex-col border-b border-white/[0.07] sm:flex-row"
+        className="flex flex-col border-b border-slate-100 sm:flex-row"
       >
         {views.map((v) => {
           const on = v.key === active;
@@ -48,19 +48,19 @@ export function StructureSwitcher({ views }: { views: StructureView[] }) {
               aria-controls={`panel-${v.key}`}
               onClick={() => setActive(v.key)}
               className={`relative flex-1 px-4 py-3.5 text-left transition-colors duration-200 ${focusRing} ${
-                on ? 'bg-white/[0.04]' : 'hover:bg-white/[0.02]'
+                on ? 'bg-ivory-100' : 'hover:bg-ivory-100'
               }`}
             >
               <span className="flex items-center gap-2">
                 <span
                   className={`text-[0.8125rem] font-semibold ${
-                    on ? 'text-ivory-50' : 'text-slate-400'
+                    on ? 'text-slate-900' : 'text-slate-600'
                   }`}
                 >
                   {v.label}
                 </span>
                 {v.recommended ? (
-                  <span className="chip border-positive-500/45 bg-positive-700/25 text-positive-200">
+                  <span className="chip border-positive-200 bg-positive-100 text-positive-700">
                     Recommended
                   </span>
                 ) : null}
@@ -84,7 +84,7 @@ export function StructureSwitcher({ views }: { views: StructureView[] }) {
       >
         <Crossfade keyValue={current.key}>
           <div>
-            <p className="max-w-prose text-sm leading-relaxed text-slate-300">{current.summary}</p>
+            <p className="max-w-prose text-sm leading-relaxed text-slate-700">{current.summary}</p>
 
             <dl className="mt-6 grid gap-x-6 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
               {current.metrics.map((m) => (
@@ -93,10 +93,10 @@ export function StructureSwitcher({ views }: { views: StructureView[] }) {
                   <dd
                     className={`num mt-1.5 text-xl font-semibold ${
                       m.tone === 'positive'
-                        ? 'text-positive-400'
+                        ? 'text-positive-600'
                         : m.tone === 'risk'
-                          ? 'text-risk-400'
-                          : 'text-ivory-50'
+                          ? 'text-risk-600'
+                          : 'text-slate-900'
                     }`}
                   >
                     {m.value}
@@ -108,8 +108,8 @@ export function StructureSwitcher({ views }: { views: StructureView[] }) {
             <div
               className={`mt-6 rounded-lg border px-4 py-3 text-xs leading-relaxed ${
                 current.recommended
-                  ? 'border-caution-500/35 bg-caution-700/15 text-caution-100'
-                  : 'border-white/[0.07] bg-navy-900/60 text-slate-400'
+                  ? 'border-caution-200 bg-caution-100 text-caution-700'
+                  : 'border-slate-100 bg-ivory-100 text-slate-600'
               }`}
             >
               <span className="font-semibold">
